@@ -25,8 +25,10 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  # ASUS's current Armoury support requires a recent kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # NVIDIA 595.71.05 does not build against Linux 7.2, which removed strncpy
+  # from the kernel API. Use the current 6.18 LTS kernel until nixpkgs updates
+  # the NVIDIA driver with a compatible fix.
+  boot.kernelPackages = pkgs.linuxPackages_6_18;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.auto-optimise-store = true;
