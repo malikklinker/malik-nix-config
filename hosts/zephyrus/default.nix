@@ -48,7 +48,6 @@
   services.fwupd.enable = true;
   services.asusd = {
     enable = true;
-    enableUserService = true;
   };
   services.printing.enable = true;
 
