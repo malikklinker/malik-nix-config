@@ -64,7 +64,5 @@
     usbutils
   ];
 
-  programs.firefox.enable = true;
-
   system.stateVersion = "26.05";
 }
