@@ -8,6 +8,8 @@
   programs.home-manager.enable = true;
   programs.git.enable = true;
 
+  programs.codexDesktopLinux.enable = true;
+
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = true;
@@ -235,6 +237,8 @@
 
   home.packages = with pkgs; [
     librewolf
+    codex
+    unzip
 
     # Coding and terminal basics
     neovim
@@ -259,9 +263,9 @@
 
     # Math coursework and LaTeX
     texlive.combined.scheme-medium
-    latexmk
+    texlivePackages.latexmk
     biber
-    chktex
+    texlivePackages.chktex
     zathura
     python3Packages.sympy
 
@@ -271,7 +275,7 @@
     # Small Wayland desktop essentials
     mako
     swaylock
-    nm-connection-editor
+    networkmanagerapplet
     wl-clipboard
     grim
     slurp

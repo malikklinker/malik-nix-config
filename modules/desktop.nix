@@ -24,15 +24,10 @@
   # Aquamarine reads this before Hyprland starts, unlike compositor config
   # directives that may only be applied after backend initialization.
   environment.sessionVariables = {
-    AQ_DRM_DEVICES = "/dev/dri/amd-igpu";
+    # Pin Aquamarine to the AMD iGPU so startup does not probe the NVIDIA dGPU.
+    AQ_DRM_DEVICES = "/dev/dri/by-path/pci-0000:65:00.0-card";
     NIXOS_OZONE_WL = "1";
   };
-
-  # Stable DRM alias for the AMD iGPU at PCI 0000:65:00.0. Hyprland uses this
-  # as its only compositor device; PRIME offload apps can still use the dGPU.
-  services.udev.extraRules = ''
-    KERNEL=="card*", KERNELS=="0000:65:00.0", SUBSYSTEM=="drm", SUBSYSTEMS=="pci", SYMLINK+="dri/amd-igpu"
-  '';
 
   services.pipewire = {
     enable = true;
