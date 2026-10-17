@@ -30,11 +30,19 @@
         "col.active_border" = "rgba(cba6f7ff)";
         "col.inactive_border" = "rgba(45475aff)";
       };
-      decoration.rounding = 6;
+      decoration = {
+        rounding = 6;
+        blur = {
+          enabled = true;
+          size = 6;
+          passes = 2;
+          new_optimizations = true;
+        };
+      };
       bind = [
         "$mod, Q, killactive"
         "$mod, Return, exec, kitty"
-        "$mod, Space, exec, fuzzel"
+        "$mod, Space, exec, walker"
         "$mod, F, fullscreen"
         "$mod, V, togglefloating"
         "$mod, L, exec, swaylock"
@@ -66,7 +74,7 @@
       cursor_shape = "beam";
       enable_audio_bell = false;
       window_padding_width = 8;
-      background_opacity = "0.97";
+      background_opacity = "0.94";
     };
   };
 
@@ -79,6 +87,8 @@
         color = {
           "1" = "#cba6f7";
           "2" = "#f5c2e7";
+          "3" = "#f38ba8";
+          "4" = "#cba6f7";
         };
         padding.right = 2;
       };
@@ -127,7 +137,105 @@
     };
   };
 
+  services.elephant.enable = true;
+
+  services.walker = {
+    enable = true;
+    systemd.enable = true;
+    settings = {
+      theme = "mocha";
+      close_when_open = true;
+      force_keyboard_focus = true;
+      selection_wrap = true;
+      placeholders.default = {
+        input = "Search apps, files, or calculate…";
+        list = "No matches";
+      };
+      placeholders.desktopapplications = {
+        input = "Launch an app…";
+        list = "No applications found";
+      };
+      providers = {
+        default = [
+          "desktopapplications"
+          "calc"
+          "runner"
+          "files"
+        ];
+        empty = [ "desktopapplications" ];
+        max_results = 40;
+        prefixes = [
+          { prefix = ">"; provider = "runner"; }
+          { prefix = "/"; provider = "files"; }
+          { prefix = "="; provider = "calc"; }
+        ];
+      };
+    };
+    theme = {
+      name = "mocha";
+      style = ''
+        @define-color window_bg_color #1e1e2e;
+        @define-color accent_bg_color #cba6f7;
+        @define-color theme_fg_color #cdd6f4;
+        @define-color error_bg_color #f38ba8;
+        @define-color error_fg_color #1e1e2e;
+
+        * {
+          font-family: "JetBrainsMono Nerd Font";
+          font-size: 14px;
+        }
+
+        .box-wrapper {
+          background: @window_bg_color;
+          color: @theme_fg_color;
+          border: 2px solid @accent_bg_color;
+          border-radius: 10px;
+          padding: 12px;
+        }
+
+        .input {
+          background: #313244;
+          color: @theme_fg_color;
+          caret-color: #f5c2e7;
+          border: 1px solid #45475a;
+          border-radius: 6px;
+          padding: 10px 12px;
+        }
+
+        .list {
+          color: @theme_fg_color;
+        }
+
+        .item-box {
+          border-radius: 6px;
+          padding: 8px;
+        }
+
+        child:selected .item-box {
+          background: #45475a;
+          border-left: 3px solid #f5c2e7;
+        }
+
+        .item-text {
+          color: @theme_fg_color;
+        }
+
+        .item-subtext,
+        .placeholder,
+        .elephant-hint {
+          color: #a6adc8;
+        }
+
+        scrollbar {
+          opacity: 0;
+        }
+      '';
+    };
+  };
+
   home.packages = with pkgs; [
+    librewolf
+
     # Coding and terminal basics
     neovim
     git
@@ -137,6 +245,9 @@
     direnv
     nixd
     nil
+    pyright
+    ruff
+    texlab
     gcc
     gnumake
     lazygit
@@ -158,7 +269,6 @@
     prismlauncher
 
     # Small Wayland desktop essentials
-    fuzzel
     mako
     swaylock
     nm-connection-editor

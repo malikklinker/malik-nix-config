@@ -17,16 +17,21 @@ Home Manager keeps user applications and coursework tools in the same repo.
   [eduroam Configuration Assistant Tool](https://cat.eduroam.org/); it sets
   the correct certificate and server identity checks. `nm-connection-editor`
   is included for managing or troubleshooting NetworkManager profiles.
-- Kitty using Catppuccin Mocha, Fastfetch with a small custom cat logo, a
-  tracked LazyVim starter config, and a small Quickshell top bar for Hyprland.
+- Kitty using Catppuccin Mocha, Fastfetch with a custom Nix flake logo, Walker
+  with a matching Mocha theme, a tracked LazyVim starter config, and a small
+  Quickshell top bar for Hyprland.
 - Prism Launcher, a medium TeX Live set, `latexmk`, `biber`, `chktex`, Zathura,
   and SymPy.
 - Full-disk encryption is the recommended install choice. The hardware file is
   an install template and must be updated with the actual disk UUIDs.
 
-Run `ff` for the custom Fastfetch display. `nvim` starts the tracked LazyVim
-setup; LazyVim downloads its plugins into the user's writable data directory
-on first launch. Kitty and the Hyprland accents use Catppuccin Mocha. The
+Press Super+Space to open Walker. Type an app name to launch it, prefix a query
+with `>` to run a command, `/` to search files, or `=` to calculate. Run `ff`
+for the custom Fastfetch display. `nvim` starts the tracked LazyVim setup, with
+explicit Nix, Python, TeX, and Markdown integrations; LazyVim downloads plugins
+into the user's writable data directory on first launch. Kitty uses subtle
+transparency with Hyprland blur, and the Kitty and Hyprland accents use
+Catppuccin Mocha. The
 Quickshell panel starts with Hyprland and can be edited under `home/quickshell`.
 
 ## Before installing
