@@ -1,5 +1,21 @@
 # Configuration audit — 2026-10-18
 
+## Graphics upgrade follow-up
+
+The subsequent upgrade supersedes the original Hyprland/atomic-mode findings
+below: the main host now pins Hyprland 0.56.2, Aquamarine 0.15.1, portal 1.4.1,
+and Mesa 26.2.5 (64/32-bit) through a separate unstable input. Existing stable
+input revisions, Linux 6.18.56, and NVIDIA 595.71.05 are unchanged. Hyprland now
+uses native Lua calls; its 0.56.2 validator reports `config ok`. The full upgraded
+system build passed with no evaluated assertion failures or warnings.
+
+`AQ_NO_ATOMIC` has been removed to test the upstream HX 370 panel fix; the AMD
+GPU alias remains. Physical startup and suspend/resume are still unverified.
+The upgrade has not been installed or rebooted into. An optional SDDM/KWin
+module is prepared separately; see GREETERS.md for the investigation and trial.
+
+## Original audit
+
 Reviewed the flake and lockfile, host and hardware modules, desktop and NVIDIA
 modules, Home Manager applications/services, Quickshell panel, and Neovim config.
 Compared disk and GPU settings with this running laptop. Changes are built but

@@ -18,57 +18,12 @@
 
   wayland.windowManager.hyprland = {
     enable = true;
-    # These settings use Hyprlang syntax, not the new Lua API.
-    configType = "hyprlang";
+    configType = "lua";
     systemd.enable = true;
-    # The NixOS module installs the compositor and portal system-wide.
+    # The NixOS module owns the matched compositor and portal packages.
     package = null;
     portalPackage = null;
-    settings = {
-      "$mod" = "SUPER";
-      monitor = [ ",preferred,auto,1" ];
-      input = {
-        kb_layout = "us";
-        touchpad.natural_scroll = true;
-      };
-      general = {
-        border_size = 2;
-        gaps_in = 4;
-        gaps_out = 8;
-        layout = "dwindle";
-        "col.active_border" = "rgba(cba6f7ff)";
-        "col.inactive_border" = "rgba(45475aff)";
-      };
-      decoration = {
-        rounding = 6;
-        blur = {
-          enabled = true;
-          size = 6;
-          passes = 2;
-          new_optimizations = true;
-        };
-      };
-      bind = [
-        "$mod, Q, killactive"
-        "$mod, Return, exec, kitty"
-        "$mod, Space, exec, walker"
-        "$mod, F, fullscreen"
-        "$mod, V, togglefloating"
-        "$mod, L, exec, swaylock"
-        "$mod, M, exit"
-        "$mod, 1, workspace, 1"
-        "$mod, 2, workspace, 2"
-        "$mod, 3, workspace, 3"
-        "$mod, 4, workspace, 4"
-        "$mod, 5, workspace, 5"
-        "$mod SHIFT, 1, movetoworkspace, 1"
-        "$mod SHIFT, 2, movetoworkspace, 2"
-        "$mod SHIFT, 3, movetoworkspace, 3"
-        "$mod SHIFT, 4, movetoworkspace, 4"
-        "$mod SHIFT, 5, movetoworkspace, 5"
-        ", Print, exec, grim -g \"$(slurp)\" - | wl-copy"
-      ];
-    };
+    extraConfig = builtins.readFile ./hypr/hyprland.lua;
   };
 
   programs.kitty = {
