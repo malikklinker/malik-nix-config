@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
-    # Update this input independently for Hyprland/Aquamarine fixes.
+    # Fast-moving desktop packages and Codex CLI come from this package set.
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
@@ -27,15 +27,14 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+          home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.sharedModules = [ codex-desktop-linux.homeManagerModules.default ];
           home-manager.users.malikk = import ./home/malikk.nix;
         }
       ];
     };
 
-    # Explicit opt-in trial; the normal host keeps the text greeter for now.
-    nixosConfigurations.zephyrus-sddm = inputs.self.nixosConfigurations.zephyrus.extendModules {
-      modules = [ ./modules/greeter-sddm.nix ];
-    };
+    # Compatibility alias for the former SDDM trial configuration.
+    nixosConfigurations.zephyrus-sddm = inputs.self.nixosConfigurations.zephyrus;
   };
 }

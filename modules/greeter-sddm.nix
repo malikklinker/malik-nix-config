@@ -1,12 +1,10 @@
-# Optional graphical-login candidate. Not imported by the main host config.
-# Match the working Plasma installation's SDDM/KWin/Breeze setup without
-# enabling the Plasma desktop. See GREETERS.md before applying.
-{ lib, pkgs, ... }:
+# Main graphical login: SDDM with KWin Wayland and Breeze, without enabling
+# the Plasma desktop.
+{ pkgs, ... }:
 
 {
-  services.greetd.enable = lib.mkForce false;
   services.displayManager = {
-    defaultSession = "niri";
+    defaultSession = "hyprland-uwsm";
     sddm = {
       enable = true;
       wayland = {
@@ -21,6 +19,9 @@
         kirigami
         libplasma
         plasma5support
+        # Provides org.kde.breeze.components and the keyboard indicator imported
+        # by Breeze. Installing the theme alone does not expose these to SDDM.
+        plasma-workspace
         qtsvg
         qtvirtualkeyboard
       ];

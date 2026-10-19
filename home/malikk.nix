@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 let
+  unstablePkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
   sessionApp = pkgs.writeShellScriptBin "session-app" ''
     if uwsm check is-active >/dev/null 2>&1; then
       exec uwsm app -- "$@"
@@ -17,6 +18,7 @@ in
 
   programs.home-manager.enable = true;
   programs.git.enable = true;
+  programs.fish.enable = true;
 
   programs.codexDesktopLinux.enable = true;
 
@@ -29,7 +31,8 @@ in
   wayland.windowManager.hyprland = {
     enable = true;
     configType = "lua";
-    systemd.enable = true;
+    # UWSM owns session activation and imports the compositor environment.
+    systemd.enable = false;
     # The NixOS module owns the matched compositor and portal packages.
     package = null;
     portalPackage = null;
@@ -113,11 +116,17 @@ in
 
   services.elephant.enable = true;
 
-  # Stop graphical processes on logout so they inherit the next session's
-  # Wayland environment when switching between Niri and Hyprland.
+  # Wait for the compositor to publish its display environment before starting
+  # launchers, and stop them on logout so the next session gets fresh values.
   systemd.user.services = {
-    elephant.Unit.PartOf = [ "graphical-session.target" ];
-    walker.Unit.PartOf = [ "graphical-session.target" ];
+    elephant.Unit = {
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    walker.Unit = {
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
     quickshell.Unit.PartOf = [ "graphical-session.target" ];
   };
 
@@ -219,7 +228,8 @@ in
   home.packages = with pkgs; [
     sessionApp
     librewolf
-    codex
+    # Keep Codex current without moving the stable system package set.
+    unstablePkgs.codex
     unzip
 
     # Coding and terminal basics

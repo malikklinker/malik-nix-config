@@ -4,6 +4,7 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/desktop.nix
+    ../../modules/greeter-sddm.nix
     ../../modules/nvidia.nix
   ];
 
@@ -38,9 +39,12 @@
     options = "--delete-older-than 14d";
   };
 
+  programs.fish.enable = true;
+
   users.users.malikk = {
     isNormalUser = true;
     description = "Malik";
+    shell = pkgs.fish;
     extraGroups = [ "networkmanager" "wheel" "video" "input" ];
     # Set a login password after installation with `passwd` from a root shell.
   };
