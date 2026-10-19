@@ -47,6 +47,12 @@ for Wi-Fi or `nm-connection-editor` for connection profiles, and
 `blueman-manager` for Bluetooth. Niri uses xwayland-satellite for X11 apps.
 The configuration does not currently provide automatic idle locking.
 
+The Quickshell panel has clickable workspace numbers: Hyprland keeps 1–5
+visible, while Niri shows the focused output's dynamic workspaces. The current
+workspace is highlighted, and occupied workspaces have brighter numbers.
+Scroll over the volume indicator to adjust it in 5% steps (up to 100%), or click
+it to toggle mute. Volume follows the default audio output.
+
 Hyprland's session is managed by UWSM; Home Manager's separate Hyprland systemd
 integration is disabled. Walker and Elephant start after `graphical-session.target`
 so they inherit the compositor's display environment. Starting Elephant earlier

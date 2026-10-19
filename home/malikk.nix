@@ -173,6 +173,7 @@ in
         @define-color error_fg_color #1e1e2e;
 
         * {
+          all: unset;
           font-family: "JetBrainsMono Nerd Font";
           font-size: 14px;
         }
