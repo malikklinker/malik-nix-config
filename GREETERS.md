@@ -1,9 +1,15 @@
 # Graphical greeter investigation — 2026-10-18
 
-The main `zephyrus` configuration now uses **SDDM with KWin on Wayland and the
-Breeze theme**, from `modules/greeter-sddm.nix`. UWSM-managed Hyprland is the
-default desktop session, with Niri selectable at login. `zephyrus-sddm` is a
+The main `zephyrus` configuration uses **SDDM with KWin on Wayland and the
+Catppuccin Mocha theme with mauve accents**, from `modules/greeter-sddm.nix`.
+UWSM-managed Hyprland is the default desktop session, with Niri selectable at
+login. `zephyrus-sddm` is a
 compatibility alias for the same configuration.
+
+The Catppuccin theme replaces Breeze as of 2026-10-19. It uses JetBrainsMono
+Nerd Font at size 12 and the theme's bundled background. The theme is installed
+in both the system profile and SDDM's extra packages, alongside Qt SVG and
+virtual keyboard support.
 
 ## Why SDDM first
 
@@ -16,12 +22,10 @@ does not establish that another greeter will work.
 SDDM can launch Niri and Hyprland Wayland sessions. Its greeter can use X11 or a
 separate Wayland compositor. The greeter uses stable KWin rather than Hyprland,
 so displaying the login screen does not require Aquamarine to initialize.
-It explicitly includes Breeze's Qt dependencies without enabling Plasma as a
-desktop. `plasma-workspace` is included in SDDM's `extraPackages` to expose the
-`org.kde.breeze.components` and `org.kde.plasma.private.keyboardindicator` QML
-modules. Without them, the greeter logs missing-module errors and falls back to
-its embedded theme. Session remembering is disabled; Hyprland (uwsm-managed)
-is the default and both sessions remain selectable.
+The initial Breeze setup needed `plasma-workspace` in SDDM's `extraPackages`
+for its private QML components; Catppuccin uses its own components instead.
+Session remembering is disabled; Hyprland (uwsm-managed) is the default and
+both sessions remain selectable.
 
 Upstream still labels SDDM's Wayland greeter mode experimental. The recommendation
 is based on this machine's existing setup, not a blanket claim that Wayland SDDM
@@ -72,6 +76,7 @@ A successful build does not test physical displays or authentication.
 
 ## Sources
 
+- [Catppuccin SDDM theme, previews, and configuration](https://github.com/catppuccin/sddm)
 - [SDDM display server and session settings](https://github.com/sddm/sddm/blob/develop/data/man/sddm.conf.rst.in)
 - [SDDM project](https://github.com/sddm/sddm)
 - [ReGreet setup, requirements, Cage/Niri examples, and troubleshooting](https://github.com/rharish101/ReGreet/blob/main/README.md)

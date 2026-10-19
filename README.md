@@ -1,13 +1,13 @@
 # NixOS Zephyrus configuration
 
-SDDM with KWin Wayland and Breeze is the default login screen. Hyprland
-(UWSM-managed) is the default desktop session; Niri remains selectable.
+SDDM with KWin Wayland and Catppuccin Mocha (mauve accents) is the default
+login screen. Hyprland (UWSM-managed) is the default desktop session; Niri
+remains selectable.
 Session remembering is disabled. The former `zephyrus-sddm` output is an alias
 for the main `zephyrus` configuration.
 
-Breeze's QML components come from `plasma-workspace` in SDDM's `extraPackages`.
-Without that dependency, SDDM falls back to its embedded theme even though the
-Breeze theme files are installed.
+The Catppuccin theme is installed with SDDM's Qt SVG and virtual keyboard
+dependencies. The greeter uses JetBrainsMono Nerd Font at size 12.
 
 Fish is Malik's login shell, with Home Manager supplying its aliases and setup.
 New logins and terminals use Fish after the system configuration is applied.
