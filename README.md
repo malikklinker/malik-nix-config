@@ -1,9 +1,16 @@
 # NixOS Zephyrus configuration
 
-Niri is the temporary default at the greetd/tuigreet login screen. Hyprland
-remains installed and is the intended main desktop once GPU startup is verified.
-Press F3 at login to select it manually. Session remembering is disabled for now
-so an old Hyprland selection cannot override the Niri default.
+SDDM with KWin Wayland and Breeze is the default login screen. Hyprland
+(UWSM-managed) is the default desktop session; Niri remains selectable.
+Session remembering is disabled. The former `zephyrus-sddm` output is an alias
+for the main `zephyrus` configuration.
+
+Breeze's QML components come from `plasma-workspace` in SDDM's `extraPackages`.
+Without that dependency, SDDM falls back to its embedded theme even though the
+Breeze theme files are installed.
+
+Fish is Malik's login shell, with Home Manager supplying its aliases and setup.
+New logins and terminals use Fish after the system configuration is applied.
 
 ## Apply on this laptop
 
@@ -40,6 +47,11 @@ for Wi-Fi or `nm-connection-editor` for connection profiles, and
 `blueman-manager` for Bluetooth. Niri uses xwayland-satellite for X11 apps.
 The configuration does not currently provide automatic idle locking.
 
+Hyprland's session is managed by UWSM; Home Manager's separate Hyprland systemd
+integration is disabled. Walker and Elephant start after `graphical-session.target`
+so they inherit the compositor's display environment. Starting Elephant earlier
+can make app launches silently fail because its child processes have no display.
+
 Kitty, Walker, and the desktop use Catppuccin Mocha and JetBrainsMono Nerd Font.
 Run `ff` for Fastfetch. `nvim` starts LazyVim with Nix, Python, TeX, and Markdown
 integrations; plugins download on first use. Coursework tools include TeX Live,
@@ -53,11 +65,12 @@ use decimal bus numbers 101 and 100 respectively. A udev rule exposes AMD as
 `AQ_DRM_DEVICES` uses this alias: PCI by-path names contain colons and cannot be
 used directly in Aquamarine's colon-separated device list.
 
-Hyprland 0.56.2, Aquamarine 0.15.1, portal 1.4.1, and Mesa 26.2.5 now come
-from a separate locked `nixpkgs-unstable` input. The rest of the system, including
-Linux 6.18 and NVIDIA, remains on the existing stable pin. Matching 64-bit and
-32-bit Mesa packages are used. AMD-only Hyprland may not drive connectors wired
-to NVIDIA.
+Hyprland 0.56.2, Aquamarine 0.15.1, and portal 1.4.1 come from a separate
+locked `nixpkgs-unstable` input. Mesa stays on the stable system package set so
+stable graphical clients do not load a driver built against unstable's newer
+glibc. Matching stable 64-bit and 32-bit Mesa packages are used. The rest of the
+system, including Linux 6.18 and NVIDIA, also remains on the stable pin. AMD-only
+Hyprland may not drive connectors wired to NVIDIA.
 
 Aquamarine includes the HX 370 panel `max_bpc` fallback from upstream PR #316,
 so `AQ_NO_ATOMIC` is no longer set. The AMD alias remains. If the new stack still
@@ -65,16 +78,16 @@ fails, log out to a text console and test `AQ_NO_ATOMIC=1 start-hyprland` to
 compare; collect the full log before treating that workaround as permanent.
 Hyprland now uses a validated Lua config in `home/hypr/hyprland.lua`.
 
-Update only the graphics input with:
+Update the unstable packages input with:
 
 ```sh
 nix flake update nixpkgs-unstable
 ```
 
-Review the resulting versions and rebuild before installing an updated pin.
-The graphical greeter investigation and an optional SDDM candidate are documented
-in [GREETERS.md](GREETERS.md); the main host still uses tuigreet until that
-candidate has been tested.
+This moves Codex CLI as well as the Hyprland stack, so review the resulting
+versions and rebuild before installing an updated pin.
+The SDDM setup and greeter recovery notes are documented in
+[GREETERS.md](GREETERS.md).
 
 After booting the new generation, verify:
 
@@ -83,12 +96,12 @@ readlink -f /dev/dri/amd-igpu
 printenv AQ_DRM_DEVICES
 # AQ_NO_ATOMIC should be unset:
 printenv AQ_NO_ATOMIC || true
-systemctl --user status niri walker elephant quickshell polkit-gnome
-journalctl --user -b -u niri --no-pager
+systemctl --user status wayland-wm@hyprland.desktop walker elephant quickshell polkit-gnome
+journalctl --user -b -u wayland-wm@hyprland.desktop --no-pager
 ```
 
-Test Hyprland by selecting it with F3 after logging out of Niri. If it still
-hangs, return to a text console with Ctrl+Alt+F2, log in, and collect the latest
+At SDDM, confirm that Hyprland (uwsm-managed) is selected. If startup hangs,
+return to a text console with Ctrl+Alt+F2, log in, and collect the latest
 `$XDG_RUNTIME_DIR/hypr/*/hyprland.log` and `journalctl -b -k`. The last log line
 alone does not identify which backend operation is blocked. Startup on the
 physical GPU still needs testing; config validation cannot establish that.

@@ -1,4 +1,4 @@
-{ config, inputs, pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 let
   graphicsPkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -8,17 +8,7 @@ let
 in
 
 {
-  # Keep the login screen in a text console; the session itself is Wayland.
-  services.greetd = {
-    enable = true;
-    settings.default_session = {
-      # Do not restore a previously remembered (broken) Hyprland session.
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions --cmd ${niriPackage}/bin/niri-session";
-      user = "greeter";
-    };
-  };
-
-  # Keep the compositor, its portal, and Mesa from the same package set.
+  # Match the compositor and portal; system-wide Mesa stays stable below.
   programs.hyprland = {
     enable = true;
     package = graphicsPkgs.hyprland;
@@ -38,8 +28,11 @@ in
 
   hardware.graphics.enable = true;
   hardware.graphics.enable32Bit = true;
-  hardware.graphics.package = graphicsPkgs.mesa;
-  hardware.graphics.package32 = graphicsPkgs.pkgsi686Linux.mesa;
+  # Keep the system-wide graphics driver on the stable package set. Stable
+  # clients load this driver in-process, so using unstable Mesa here can make
+  # them require unstable's newer glibc and fail before drawing a window.
+  hardware.graphics.package = pkgs.mesa;
+  hardware.graphics.package32 = pkgs.pkgsi686Linux.mesa;
 
   # AQ_DRM_DEVICES is colon-separated, so PCI by-path names cannot be used.
   # Match the AMD PCI device, never a card number that can change at boot.

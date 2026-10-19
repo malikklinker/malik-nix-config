@@ -1,9 +1,9 @@
 # Graphical greeter investigation — 2026-10-18
 
-Recommendation: try **SDDM with KWin on Wayland and the Breeze theme**, as an
-explicit separate boot generation. Keep Niri as the initial desktop session.
-The normal `zephyrus` output retains tuigreet while the graphics upgrade is tested;
-`zephyrus-sddm` adds the candidate from `modules/greeter-sddm.nix`.
+The main `zephyrus` configuration now uses **SDDM with KWin on Wayland and the
+Breeze theme**, from `modules/greeter-sddm.nix`. UWSM-managed Hyprland is the
+default desktop session, with Niri selectable at login. `zephyrus-sddm` is a
+compatibility alias for the same configuration.
 
 ## Why SDDM first
 
@@ -14,12 +14,14 @@ not prove it will work with the changed graphics packages. GDM's past success
 does not establish that another greeter will work.
 
 SDDM can launch Niri and Hyprland Wayland sessions. Its greeter can use X11 or a
-separate Wayland compositor. The candidate uses stable KWin rather than Hyprland,
+separate Wayland compositor. The greeter uses stable KWin rather than Hyprland,
 so displaying the login screen does not require Aquamarine to initialize.
 It explicitly includes Breeze's Qt dependencies without enabling Plasma as a
-desktop. Session remembering is disabled so selecting Hyprland once does not
-be saved for the next boot; both sessions remain selectable. Existing SDDM state
-can override the fallback default, so explicitly choose Niri on the first login.
+desktop. `plasma-workspace` is included in SDDM's `extraPackages` to expose the
+`org.kde.breeze.components` and `org.kde.plasma.private.keyboardindicator` QML
+modules. Without them, the greeter logs missing-module errors and falls back to
+its embedded theme. Session remembering is disabled; Hyprland (uwsm-managed)
+is the default and both sessions remain selectable.
 
 Upstream still labels SDDM's Wayland greeter mode experimental. The recommendation
 is based on this machine's existing setup, not a blanket claim that Wayland SDDM
@@ -44,17 +46,16 @@ case to cover, not proof that current ReGreet has that bug on this laptop.
 
 ## Trial and recovery
 
-First test the graphics upgrade with the ordinary `zephyrus` output. After that,
-the separately named graphical-login candidate can be staged for the next boot:
+Stage the main configuration, including SDDM and Fish, for the next boot:
 
 ```sh
-sudo nixos-rebuild boot --flake path:/home/malikk/malik-nix-config#zephyrus-sddm
+sudo nixos-rebuild boot --flake path:/home/malikk/malik-nix-config#zephyrus
 ```
 
 This installs a boot generation; it does not restart the live login manager.
 Reboot when ready, keeping the previous boot generation available in systemd-boot.
-Confirm keyboard input, password failure/success, Niri launch, logout back to
-SDDM, Hyprland selection, and return from suspend. Start with the internal panel;
+Confirm keyboard input, password failure/success, Hyprland launch, logout back to
+SDDM, Niri selection, and return from suspend. Start with the internal panel;
 then check a connected external monitor.
 
 If the greeter is blank or unresponsive, use Ctrl+Alt+F3 for a console login,
@@ -65,14 +66,9 @@ journalctl -b -u display-manager --no-pager
 journalctl -b -k --no-pager
 ```
 
-To stage the text-greeter output again:
-
-```sh
-sudo nixos-rebuild boot --flake path:/home/malikk/malik-nix-config#zephyrus
-```
-
-The candidate is build-tested separately; neither generation was activated during
-this work. A successful build does not test physical displays or authentication.
+For recovery, select the previous working generation in systemd-boot. Both
+flake output names now select SDDM; neither is a text-greeter fallback.
+A successful build does not test physical displays or authentication.
 
 ## Sources
 
@@ -83,5 +79,5 @@ this work. A successful build does not test physical displays or authentication.
 - [Closed ReGreet keyboard report](https://github.com/rharish101/ReGreet/issues/164)
 
 NixOS integration was also checked against the local stable SDDM and ReGreet
-modules. The proposed main and optional configurations retain the pinned stable
-kernel/NVIDIA driver; only the selected Hyprland/portal/Mesa stack uses unstable.
+modules. The main configuration retains the pinned stable kernel/NVIDIA driver
+and Mesa; the Hyprland compositor and portal use unstable.
