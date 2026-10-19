@@ -118,6 +118,7 @@ PanelWindow {
       anchor.gravity: Edges.Bottom | Edges.Left
       implicitWidth: 190
       implicitHeight: menuColumn.implicitHeight + 20
+      color: "transparent"
       visible: false
       grabFocus: true
 
@@ -125,8 +126,6 @@ PanelWindow {
         anchors.fill: parent
         radius: 10
         color: "#1e1e2e"
-        border.color: "#45475a"
-        border.width: 1
 
         Column {
           id: menuColumn
