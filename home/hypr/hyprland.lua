@@ -1,7 +1,8 @@
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
-hl.monitor({ output = "eDP-1", mode = "2560x1600@240", position = "auto", scale = 1 })
+hl.monitor({ output = "eDP-1", mode = "2560x1600@240", position = "auto", scale = 1.5 })
 
 hl.config({
+    cursor = { enable_hyprcursor = false },
     input = {
         kb_layout = "us",
         touchpad = { natural_scroll = true },
@@ -21,6 +22,10 @@ hl.config({
         blur = { enabled = true, size = 6, passes = 2, new_optimizations = true },
     },
 })
+
+-- Keep the default 800 ms timing and styles, with a quicker ease-out curve.
+hl.curve("snappy", { type = "bezier", points = { {0.16, 1}, {0.3, 1} } })
+hl.animation({ leaf = "global", enabled = true, speed = 8, bezier = "snappy" })
 
 hl.bind("SUPER + Q", hl.dsp.window.close())
 hl.bind("SUPER + Return", hl.dsp.exec_cmd("session-app kitty"))
