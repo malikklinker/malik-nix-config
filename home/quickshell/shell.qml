@@ -45,7 +45,7 @@ PanelWindow {
     }
 
     Text {
-      text: "Hyprland"
+      text: Quickshell.env("XDG_CURRENT_DESKTOP") || "Wayland"
       color: "#a6adc8"
       font.pixelSize: 12
       font.family: "JetBrainsMono Nerd Font"

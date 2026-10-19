@@ -10,8 +10,16 @@
 
   programs.codexDesktopLinux.enable = true;
 
+  xdg.configFile."niri/config.kdl".source = ./niri/config.kdl;
+  programs.swaylock.enable = true;
+  services.mako.enable = true;
+  services.polkit-gnome.enable = true;
+  services.network-manager-applet.enable = true;
+
   wayland.windowManager.hyprland = {
     enable = true;
+    # These settings use Hyprlang syntax, not the new Lua API.
+    configType = "hyprlang";
     systemd.enable = true;
     # The NixOS module installs the compositor and portal system-wide.
     package = null;
@@ -19,7 +27,6 @@
     settings = {
       "$mod" = "SUPER";
       monitor = [ ",preferred,auto,1" ];
-      exec-once = [ "mako" ];
       input = {
         kb_layout = "us";
         touchpad.natural_scroll = true;
@@ -135,11 +142,19 @@
     configs.mocha = ./quickshell;
     systemd = {
       enable = true;
-      target = "hyprland-session.target";
+      target = "graphical-session.target";
     };
   };
 
   services.elephant.enable = true;
+
+  # Stop graphical processes on logout so they inherit the next session's
+  # Wayland environment when switching between Niri and Hyprland.
+  systemd.user.services = {
+    elephant.Unit.PartOf = [ "graphical-session.target" ];
+    walker.Unit.PartOf = [ "graphical-session.target" ];
+    quickshell.Unit.PartOf = [ "graphical-session.target" ];
+  };
 
   services.walker = {
     enable = true;
@@ -273,8 +288,7 @@
     prismlauncher
 
     # Small Wayland desktop essentials
-    mako
-    swaylock
+    xwayland-satellite
     networkmanagerapplet
     wl-clipboard
     grim
