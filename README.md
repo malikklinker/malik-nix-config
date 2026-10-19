@@ -62,7 +62,7 @@ so they inherit the compositor's display environment. Starting Elephant earlier
 can make app launches silently fail because its child processes have no display.
 
 Catppuccin Mocha is the default desktop palette, with JetBrainsMono Nerd Font.
-Click the palette icon beside the hostname in Quickshell for a searchable
+Click the flower icon beside the hostname in Quickshell for a searchable
 popup with color swatches, or run `theme-set` to open it. Use `theme-set nord`,
 `theme-set mocha`, `theme-set latte`, or another name from `theme-set --list`
 to switch directly. `theme-set --current` prints the current selection.

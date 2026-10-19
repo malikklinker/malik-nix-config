@@ -33,9 +33,9 @@ Rectangle {
 
   Text {
     anchors.centerIn: parent
-    text: "󰏘"
+    text: "❀"
     color: Theme.accent
-    font.pixelSize: 17
+    font.pixelSize: 16
     font.family: "JetBrainsMono Nerd Font"
   }
   MouseArea {
