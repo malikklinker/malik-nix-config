@@ -22,11 +22,11 @@ hl.config({
 })
 
 hl.bind("SUPER + Q", hl.dsp.window.close())
-hl.bind("SUPER + Return", hl.dsp.exec_cmd("kitty"))
-hl.bind("SUPER + Space", hl.dsp.exec_cmd("walker"))
+hl.bind("SUPER + Return", hl.dsp.exec_cmd("session-app kitty"))
+hl.bind("SUPER + Space", hl.dsp.exec_cmd("session-app walker"))
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind("SUPER + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind("SUPER + L", hl.dsp.exec_cmd("swaylock"))
+hl.bind("SUPER + L", hl.dsp.exec_cmd("session-app swaylock"))
 hl.bind("SUPER + M", hl.dsp.exit())
 
 for workspace = 1, 5 do

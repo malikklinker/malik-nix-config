@@ -1,5 +1,15 @@
 { pkgs, ... }:
 
+let
+  sessionApp = pkgs.writeShellScriptBin "session-app" ''
+    if uwsm check is-active >/dev/null 2>&1; then
+      exec uwsm app -- "$@"
+    else
+      exec "$@"
+    fi
+  '';
+in
+
 {
   home.username = "malikk";
   home.homeDirectory = "/home/malikk";
@@ -115,6 +125,7 @@
     enable = true;
     systemd.enable = true;
     settings = {
+      app_launch_prefix = "session-app ";
       theme = "mocha";
       close_when_open = true;
       force_keyboard_focus = true;
@@ -206,6 +217,7 @@
   };
 
   home.packages = with pkgs; [
+    sessionApp
     librewolf
     codex
     unzip

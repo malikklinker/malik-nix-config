@@ -2,6 +2,9 @@
 
 let
   graphicsPkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  niriPackage = pkgs.niri.overrideAttrs (oldAttrs: {
+    patches = (oldAttrs.patches or [ ]) ++ [ ../patches/niri-session-environment.patch ];
+  });
 in
 
 {
@@ -10,7 +13,7 @@ in
     enable = true;
     settings.default_session = {
       # Do not restore a previously remembered (broken) Hyprland session.
-      command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions --cmd ${pkgs.niri}/bin/niri-session";
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions --cmd ${niriPackage}/bin/niri-session";
       user = "greeter";
     };
   };
@@ -20,8 +23,13 @@ in
     enable = true;
     package = graphicsPkgs.hyprland;
     portalPackage = graphicsPkgs.xdg-desktop-portal-hyprland;
+    withUWSM = true;
   };
-  programs.niri.enable = true;
+  programs.uwsm.package = graphicsPkgs.uwsm;
+  programs.niri = {
+    enable = true;
+    package = niriPackage;
+  };
 
   xdg.portal = {
     enable = true;
