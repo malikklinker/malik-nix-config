@@ -12,7 +12,7 @@ let
 in
 
 {
-  imports = [ ./theme.nix ];
+  imports = [ ./theme.nix ./audio.nix ];
 
   home.username = "malikk";
   home.homeDirectory = "/home/malikk";

@@ -51,7 +51,10 @@ The Quickshell panel has clickable workspace numbers: Hyprland keeps 1–5
 visible, while Niri shows the focused output's dynamic workspaces. The current
 workspace is highlighted, and occupied workspaces have brighter numbers.
 Scroll over the volume indicator to adjust it in 5% steps (up to 100%), or click
-it to toggle mute. Volume follows the default audio output.
+it to toggle mute. Volume follows the default audio output. The keyboard volume
+keys use the same 5% steps; volume-up also unmutes. The microphone mute key
+toggles the default input. These keys work in Hyprland and Niri, including while
+locked. The bar keeps the percentage visible when muted (with a red mute icon).
 
 Hyprland's session is managed by UWSM; Home Manager's separate Hyprland systemd
 integration is disabled. Walker and Elephant start after `graphical-session.target`

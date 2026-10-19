@@ -48,7 +48,8 @@ binds {
     Mod+Shift+4 { move-column-to-workspace 4; }
     Mod+Shift+5 { move-column-to-workspace 5; }
     Print { screenshot; }
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+" "--limit" "1.0"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
-    XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "desktop-volume" "up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "desktop-volume" "down"; }
+    XF86AudioMute allow-when-locked=true { spawn "desktop-volume" "mute"; }
+    XF86AudioMicMute allow-when-locked=true { spawn "desktop-volume" "mic-mute"; }
 }
