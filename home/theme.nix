@@ -60,6 +60,18 @@ in
     '';
   };
 
+  # GTK previously created these files outside Home Manager. Preserve them when
+  # migrating to the managed imports, before its collision check runs.
+  home.activation.backupLegacyGtkCss = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    for gtkVersion in gtk-3.0 gtk-4.0; do
+      gtkCss=${lib.escapeShellArg config.xdg.configHome}/"$gtkVersion"/gtk.css
+      if [[ -f "$gtkCss" && ! -L "$gtkCss" ]]; then
+        run ${pkgs.coreutils}/bin/mv --backup=numbered -- \
+          "$gtkCss" "$gtkCss.before-desktop-theme"
+      fi
+    done
+  '';
+
   home.activation.desktopTheme = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     run ${themeSet}/bin/theme-set --restore --no-reload
   '';
