@@ -1,6 +1,13 @@
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
 hl.monitor({ output = "eDP-1", mode = "2560x1600@240", position = "auto", scale = 1.5 })
 
+local theme_path = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/state"))
+    .. "/desktop-theme/hyprland.lua"
+local theme_ok, theme = pcall(dofile, theme_path)
+if not theme_ok then
+    theme = { active_border = "rgba(cba6f7ff)", inactive_border = "rgba(45475aff)" }
+end
+
 hl.config({
     cursor = { enable_hyprcursor = false },
     input = {
@@ -13,8 +20,8 @@ hl.config({
         gaps_out = 8,
         layout = "dwindle",
         col = {
-            active_border = "rgba(cba6f7ff)",
-            inactive_border = "rgba(45475aff)",
+            active_border = theme.active_border,
+            inactive_border = theme.inactive_border,
         },
     },
     decoration = {

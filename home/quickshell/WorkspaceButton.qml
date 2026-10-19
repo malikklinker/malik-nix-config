@@ -12,15 +12,15 @@ Rectangle {
   implicitWidth: Math.max(28, caption.implicitWidth + 12)
   implicitHeight: 26
   radius: 6
-  color: selected ? "#cba6f7" : pointer.containsMouse ? "#45475a" : "transparent"
+  color: selected ? Theme.accent : pointer.containsMouse ? Theme.overlay : "transparent"
   border.width: urgent && !selected ? 1 : 0
-  border.color: "#f38ba8"
+  border.color: Theme.red
 
   Text {
     id: caption
     anchors.centerIn: parent
     text: root.label
-    color: root.selected ? "#1e1e2e" : root.occupied ? "#cdd6f4" : "#6c7086"
+    color: root.selected ? Theme.background : root.occupied ? Theme.text : Theme.muted
     font.pixelSize: 12
     font.bold: root.selected
     font.family: "JetBrainsMono Nerd Font"

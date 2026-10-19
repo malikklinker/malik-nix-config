@@ -24,7 +24,7 @@ require("lazy").setup({
     {
       "LazyVim/LazyVim",
       import = "lazyvim.plugins",
-      opts = { colorscheme = "catppuccin" },
+      opts = { colorscheme = "desktop" },
     },
     { import = "lazyvim.plugins.extras.lang.nix" },
     { import = "lazyvim.plugins.extras.lang.python" },
@@ -33,7 +33,7 @@ require("lazy").setup({
     { import = "plugins" },
   },
   defaults = { lazy = false, version = false },
-  install = { colorscheme = { "catppuccin" } },
+  install = { colorscheme = { "habamax" } },
   checker = { enabled = false },
   change_detection = { notify = false },
   lockfile = vim.fn.stdpath("state") .. "/lazy-lock.json",
