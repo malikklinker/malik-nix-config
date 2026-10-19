@@ -1,3 +1,4 @@
+import Quickshell
 import Quickshell.Services.Pipewire
 import QtQuick
 
@@ -6,6 +7,7 @@ Rectangle {
 
   readonly property var sink: Pipewire.defaultAudioSink
   readonly property var audio: sink && sink.ready ? sink.audio : null
+  property real wheelRemainder: 0
 
   implicitWidth: caption.implicitWidth + 12
   implicitHeight: 28
@@ -20,7 +22,7 @@ Rectangle {
     id: caption
     anchors.centerIn: parent
     text: root.audio
-      ? root.audio.muted ? "󰖁 Muted" : `󰕾 ${Math.round(root.audio.volume * 100)}%`
+      ? `${root.audio.muted ? "󰖁" : "󰕾"} ${Math.round(root.audio.volume * 100)}%`
       : "󰖁 --"
     color: root.audio && root.audio.muted ? Theme.red : Theme.text
     font.pixelSize: 12
@@ -33,10 +35,14 @@ Rectangle {
     enabled: root.audio !== null
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
-    onClicked: root.audio.muted = !root.audio.muted
+    onClicked: Quickshell.execDetached(["desktop-volume", "mute"])
     onWheel: wheel => {
-      const steps = wheel.angleDelta.y / 120
-      root.audio.volume = Math.max(0, Math.min(1, root.audio.volume + steps * 0.05))
+      root.wheelRemainder += wheel.angleDelta.y
+      while (Math.abs(root.wheelRemainder) >= 120) {
+        const direction = root.wheelRemainder > 0 ? 1 : -1
+        Quickshell.execDetached(["desktop-volume", direction > 0 ? "up" : "down"])
+        root.wheelRemainder -= direction * 120
+      }
     }
   }
 }

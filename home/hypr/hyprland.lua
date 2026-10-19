@@ -42,6 +42,12 @@ hl.bind("SUPER + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind("SUPER + L", hl.dsp.exec_cmd("session-app swaylock"))
 hl.bind("SUPER + M", hl.dsp.exit())
 
+-- Use the same default output and 5% steps as the panel, including while locked.
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("desktop-volume up"), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("desktop-volume down"), { locked = true, repeating = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("desktop-volume mute"), { locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("desktop-volume mic-mute"), { locked = true })
+
 for workspace = 1, 5 do
     hl.bind("SUPER + " .. workspace, hl.dsp.focus({ workspace = workspace }))
     hl.bind("SUPER + SHIFT + " .. workspace, hl.dsp.window.move({ workspace = workspace }))
