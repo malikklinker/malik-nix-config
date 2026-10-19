@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import Quickshell
 import Quickshell.Services.UPower
 import QtQuick
@@ -56,9 +58,13 @@ PanelWindow {
     VolumeControl {}
 
     Text {
-      text: UPower.displayDevice.ready
-        ? `${Math.round(UPower.displayDevice.percentage * 100)}%`
-        : "--%"
+      text: {
+        const battery = UPower.displayDevice
+        if (!battery.ready) return "--%"
+        const percentage = battery.state === UPowerDeviceState.FullyCharged && battery.percentage >= 0.99
+          ? 100 : Math.round(battery.percentage * 100)
+        return `${Math.max(0, Math.min(100, percentage))}%`
+      }
       color: "#a6adc8"
       font.pixelSize: 12
       font.family: "JetBrainsMono Nerd Font"
@@ -95,8 +101,9 @@ PanelWindow {
         id: powerMouse
         anchors.fill: parent
         hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
         onClicked: {
-          confirmAction = ""
+          powerMenu.confirmAction = ""
           powerMenu.visible = !powerMenu.visible
         }
       }
@@ -104,11 +111,13 @@ PanelWindow {
 
     PopupWindow {
       id: powerMenu
+      property string confirmAction: ""
+
       anchor.item: powerButton
       anchor.edges: Edges.Bottom | Edges.Right
-      anchor.gravity: Edges.Bottom | Edges.Right
-      width: 190
-      height: menuColumn.implicitHeight + 20
+      anchor.gravity: Edges.Bottom | Edges.Left
+      implicitWidth: 190
+      implicitHeight: menuColumn.implicitHeight + 20
       visible: false
       grabFocus: true
 
@@ -126,22 +135,23 @@ PanelWindow {
           spacing: 4
 
           Text {
-            visible: confirmAction !== ""
+            visible: powerMenu.confirmAction !== ""
             width: parent.width
             height: visible ? 28 : 0
             verticalAlignment: Text.AlignVCenter
-            text: `Confirm ${confirmAction}?`
+            text: `Confirm ${powerMenu.confirmAction}?`
             color: "#f9e2af"
             font.pixelSize: 13
             font.family: "JetBrainsMono Nerd Font"
           }
 
           Repeater {
-            model: confirmAction === ""
+            model: powerMenu.confirmAction === ""
               ? ["Lock", "Suspend", "Restart…", "Shut down…"]
-              : ["Cancel", `Confirm ${confirmAction}`]
+              : ["Cancel", `Confirm ${powerMenu.confirmAction}`]
 
             delegate: Rectangle {
+              id: actionButton
               required property string modelData
               width: menuColumn.width
               height: 32
@@ -152,8 +162,8 @@ PanelWindow {
                 anchors.fill: parent
                 anchors.leftMargin: 10
                 verticalAlignment: Text.AlignVCenter
-                text: modelData
-                color: modelData.startsWith("Confirm") ? "#f38ba8" : "#cdd6f4"
+                text: actionButton.modelData
+                color: actionButton.modelData.startsWith("Confirm") ? "#f38ba8" : "#cdd6f4"
                 font.pixelSize: 13
                 font.family: "JetBrainsMono Nerd Font"
               }
@@ -162,21 +172,22 @@ PanelWindow {
                 id: actionMouse
                 anchors.fill: parent
                 hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                  if (confirmAction !== "") {
-                    if (modelData === "Cancel") {
-                      confirmAction = ""
+                  if (powerMenu.confirmAction !== "") {
+                    if (actionButton.modelData === "Cancel") {
+                      powerMenu.confirmAction = ""
                       return
                     }
-                    Quickshell.execDetached(["systemctl", confirmAction === "Restart" ? "reboot" : "poweroff"])
+                    Quickshell.execDetached(["systemctl", powerMenu.confirmAction === "Restart" ? "reboot" : "poweroff"])
                     powerMenu.visible = false
-                    confirmAction = ""
-                  } else if (modelData === "Restart…") {
-                    confirmAction = "Restart"
-                  } else if (modelData === "Shut down…") {
-                    confirmAction = "Shut down"
+                    powerMenu.confirmAction = ""
+                  } else if (actionButton.modelData === "Restart…") {
+                    powerMenu.confirmAction = "Restart"
+                  } else if (actionButton.modelData === "Shut down…") {
+                    powerMenu.confirmAction = "Shut down"
                   } else {
-                    Quickshell.execDetached(modelData === "Lock"
+                    Quickshell.execDetached(actionButton.modelData === "Lock"
                       ? ["swaylock"]
                       : ["systemctl", "suspend"])
                     powerMenu.visible = false
@@ -188,7 +199,5 @@ PanelWindow {
         }
       }
     }
-
-    property string confirmAction: ""
   }
 }

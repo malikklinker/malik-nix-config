@@ -59,8 +59,8 @@ in
     enable = true;
     settings = {
       logo = {
-        type = "file";
-        source = "${./fastfetch/cat.txt}";
+        type = "builtin";
+        source = "nixos";
         color = {
           "1" = "#cba6f7";
           "2" = "#f5c2e7";
