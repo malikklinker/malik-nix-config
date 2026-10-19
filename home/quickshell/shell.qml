@@ -17,7 +17,7 @@ PanelWindow {
 
   Rectangle {
     anchors.fill: parent
-    color: "#1e1e2e"
+    color: Theme.background
   }
 
   RowLayout {
@@ -26,16 +26,11 @@ PanelWindow {
     anchors.rightMargin: 16
     spacing: 12
 
-    Text {
-      text: "❀"
-      color: "#cba6f7"
-      font.pixelSize: 16
-      font.family: "JetBrainsMono Nerd Font"
-    }
+    ThemePicker {}
 
     Text {
       text: "zephyrus"
-      color: "#cdd6f4"
+      color: Theme.text
       font.pixelSize: 13
       font.bold: true
       font.family: "JetBrainsMono Nerd Font"
@@ -44,7 +39,7 @@ PanelWindow {
     Rectangle {
       Layout.preferredWidth: 1
       Layout.preferredHeight: 16
-      color: "#45475a"
+      color: Theme.overlay
     }
 
     Loader {
@@ -65,13 +60,13 @@ PanelWindow {
           ? 100 : Math.round(battery.percentage * 100)
         return `${Math.max(0, Math.min(100, percentage))}%`
       }
-      color: "#a6adc8"
+      color: Theme.subtext
       font.pixelSize: 12
       font.family: "JetBrainsMono Nerd Font"
     }
 
     Text {
-      color: "#cdd6f4"
+      color: Theme.text
       font.pixelSize: 12
       font.family: "JetBrainsMono Nerd Font"
       text: Qt.formatDateTime(clock.date, "ddd MMM d  h:mm AP")
@@ -87,12 +82,12 @@ PanelWindow {
       Layout.preferredWidth: 28
       Layout.preferredHeight: 28
       radius: 6
-      color: powerMouse.containsMouse ? "#45475a" : "transparent"
+      color: powerMouse.containsMouse ? Theme.overlay : "transparent"
 
       Text {
         anchors.centerIn: parent
         text: "⏻"
-        color: "#f38ba8"
+        color: Theme.red
         font.pixelSize: 18
         font.family: "JetBrainsMono Nerd Font"
       }
@@ -125,7 +120,7 @@ PanelWindow {
       Rectangle {
         anchors.fill: parent
         radius: 10
-        color: "#1e1e2e"
+        color: Theme.background
 
         Column {
           id: menuColumn
@@ -139,7 +134,7 @@ PanelWindow {
             height: visible ? 28 : 0
             verticalAlignment: Text.AlignVCenter
             text: `Confirm ${powerMenu.confirmAction}?`
-            color: "#f9e2af"
+            color: Theme.yellow
             font.pixelSize: 13
             font.family: "JetBrainsMono Nerd Font"
           }
@@ -155,14 +150,14 @@ PanelWindow {
               width: menuColumn.width
               height: 32
               radius: 6
-              color: actionMouse.containsMouse ? "#313244" : "transparent"
+              color: actionMouse.containsMouse ? Theme.surface : "transparent"
 
               Text {
                 anchors.fill: parent
                 anchors.leftMargin: 10
                 verticalAlignment: Text.AlignVCenter
                 text: actionButton.modelData
-                color: actionButton.modelData.startsWith("Confirm") ? "#f38ba8" : "#cdd6f4"
+                color: actionButton.modelData.startsWith("Confirm") ? Theme.red : Theme.text
                 font.pixelSize: 13
                 font.family: "JetBrainsMono Nerd Font"
               }

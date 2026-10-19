@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ config, inputs, pkgs, ... }:
 
 let
   unstablePkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -12,6 +12,8 @@ let
 in
 
 {
+  imports = [ ./theme.nix ];
+
   home.username = "malikk";
   home.homeDirectory = "/home/malikk";
   home.stateVersion = "26.05";
@@ -22,7 +24,9 @@ in
 
   programs.codexDesktopLinux.enable = true;
 
-  xdg.configFile."niri/config.kdl".source = ./niri/config.kdl;
+  xdg.configFile."niri/config.kdl".text = builtins.replaceStrings
+    [ "@themePath@" ] [ "${config.xdg.stateHome}/desktop-theme/niri.kdl" ]
+    (builtins.readFile ./niri/config.kdl);
   programs.swaylock.enable = true;
   services.mako.enable = true;
   services.polkit-gnome.enable = true;
@@ -41,7 +45,6 @@ in
 
   programs.kitty = {
     enable = true;
-    themeFile = "Catppuccin-Mocha";
     font = {
       name = "JetBrainsMono Nerd Font";
       size = 12;
@@ -62,16 +65,16 @@ in
         type = "builtin";
         source = "nixos";
         color = {
-          "1" = "#cba6f7";
-          "2" = "#f5c2e7";
-          "3" = "#f38ba8";
-          "4" = "#cba6f7";
+          "1" = "magenta";
+          "2" = "blue";
+          "3" = "red";
+          "4" = "magenta";
         };
         padding.right = 2;
       };
       display = {
         separator = " 󰁔 ";
-        color.keys = "#cba6f7";
+        color.keys = "magenta";
       };
       modules = [
         "title"
@@ -102,7 +105,6 @@ in
   xdg.configFile."nvim/init.lua".source = ./nvim/init.lua;
   xdg.configFile."nvim/lua/config/lazy.lua".source = ./nvim/lua/config/lazy.lua;
   xdg.configFile."nvim/lua/config/options.lua".source = ./nvim/lua/config/options.lua;
-  xdg.configFile."nvim/lua/plugins/catppuccin.lua".source = ./nvim/lua/plugins/catppuccin.lua;
 
   programs.quickshell = {
     enable = true;
@@ -135,7 +137,8 @@ in
     systemd.enable = true;
     settings = {
       app_launch_prefix = "session-app ";
-      theme = "mocha";
+      theme = "desktop";
+      hotreload_theme = true;
       close_when_open = true;
       force_keyboard_focus = true;
       selection_wrap = true;
@@ -164,65 +167,8 @@ in
       };
     };
     theme = {
-      name = "mocha";
-      style = ''
-        @define-color window_bg_color #1e1e2e;
-        @define-color accent_bg_color #cba6f7;
-        @define-color theme_fg_color #cdd6f4;
-        @define-color error_bg_color #f38ba8;
-        @define-color error_fg_color #1e1e2e;
-
-        * {
-          all: unset;
-          font-family: "JetBrainsMono Nerd Font";
-          font-size: 14px;
-        }
-
-        .box-wrapper {
-          background: @window_bg_color;
-          color: @theme_fg_color;
-          border: 2px solid @accent_bg_color;
-          border-radius: 10px;
-          padding: 12px;
-        }
-
-        .input {
-          background: #313244;
-          color: @theme_fg_color;
-          caret-color: #f5c2e7;
-          border: 1px solid #45475a;
-          border-radius: 6px;
-          padding: 10px 12px;
-        }
-
-        .list {
-          color: @theme_fg_color;
-        }
-
-        .item-box {
-          border-radius: 6px;
-          padding: 8px;
-        }
-
-        child:selected .item-box {
-          background: #45475a;
-          border-left: 3px solid #f5c2e7;
-        }
-
-        .item-text {
-          color: @theme_fg_color;
-        }
-
-        .item-subtext,
-        .placeholder,
-        .elephant-hint {
-          color: #a6adc8;
-        }
-
-        scrollbar {
-          opacity: 0;
-        }
-      '';
+      name = "desktop";
+      style = ''@import url("file://${config.xdg.stateHome}/desktop-theme/walker.css");'';
     };
   };
 

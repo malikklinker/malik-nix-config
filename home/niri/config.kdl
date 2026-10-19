@@ -13,12 +13,9 @@ input {
 layout {
     gaps 8
     default-column-width { proportion 0.5; }
-    focus-ring {
-        width 2
-        active-color "#cba6f7"
-        inactive-color "#45475a"
-    }
 }
+
+include "@themePath@"
 
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/%Y-%m-%d-%H-%M-%S.png"

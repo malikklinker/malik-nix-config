@@ -58,7 +58,18 @@ integration is disabled. Walker and Elephant start after `graphical-session.targ
 so they inherit the compositor's display environment. Starting Elephant earlier
 can make app launches silently fail because its child processes have no display.
 
-Kitty, Walker, and the desktop use Catppuccin Mocha and JetBrainsMono Nerd Font.
+Catppuccin Mocha is the default desktop palette, with JetBrainsMono Nerd Font.
+Click the palette icon beside the hostname in Quickshell for a searchable
+popup with color swatches, or run `theme-set` to open it. Use `theme-set nord`,
+`theme-set mocha`, `theme-set latte`, or another name from `theme-set --list`
+to switch directly. `theme-set --current` prints the current selection.
+
+Tinty applies the bundled Base16 palettes offline; switching needs no rebuild
+after the initial installation. The selection survives login and rebuilds.
+Quickshell, Hyprland/Niri, Kitty, Walker, Mako, and open Neovim windows follow
+the palette. Fastfetch uses the terminal's colors. GTK 3/4 receive palette CSS
+and the light/dark preference; some GTK applications need reopening to pick up
+changes. SDDM retains its separately configured Catppuccin Mocha login theme.
 Run `ff` for Fastfetch. `nvim` starts LazyVim with Nix, Python, TeX, and Markdown
 integrations; plugins download on first use. Coursework tools include TeX Live,
 latexmk, biber, chktex, Zathura, and SymPy.

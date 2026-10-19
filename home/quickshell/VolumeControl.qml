@@ -10,7 +10,7 @@ Rectangle {
   implicitWidth: caption.implicitWidth + 12
   implicitHeight: 28
   radius: 6
-  color: pointer.containsMouse ? "#313244" : "transparent"
+  color: pointer.containsMouse ? Theme.surface : "transparent"
 
   PwObjectTracker {
     objects: root.sink ? [root.sink] : []
@@ -22,7 +22,7 @@ Rectangle {
     text: root.audio
       ? root.audio.muted ? "󰖁 Muted" : `󰕾 ${Math.round(root.audio.volume * 100)}%`
       : "󰖁 --"
-    color: root.audio && root.audio.muted ? "#f38ba8" : "#cdd6f4"
+    color: root.audio && root.audio.muted ? Theme.red : Theme.text
     font.pixelSize: 12
     font.family: "JetBrainsMono Nerd Font"
   }
