@@ -1,4 +1,8 @@
-{ config, pkgs, ... }:
+{ config, inputs, pkgs, ... }:
+
+let
+  graphicsPkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in
 
 {
   # Keep the login screen in a text console; the session itself is Wayland.
@@ -11,7 +15,12 @@
     };
   };
 
-  programs.hyprland.enable = true;
+  # Keep the compositor, its portal, and Mesa from the same package set.
+  programs.hyprland = {
+    enable = true;
+    package = graphicsPkgs.hyprland;
+    portalPackage = graphicsPkgs.xdg-desktop-portal-hyprland;
+  };
   programs.niri.enable = true;
 
   xdg.portal = {
@@ -21,6 +30,8 @@
 
   hardware.graphics.enable = true;
   hardware.graphics.enable32Bit = true;
+  hardware.graphics.package = graphicsPkgs.mesa;
+  hardware.graphics.package32 = graphicsPkgs.pkgsi686Linux.mesa;
 
   # AQ_DRM_DEVICES is colon-separated, so PCI by-path names cannot be used.
   # Match the AMD PCI device, never a card number that can change at boot.
@@ -33,8 +44,8 @@
   environment.sessionVariables = {
     # Pin Aquamarine to the AMD iGPU so startup does not probe the NVIDIA dGPU.
     AQ_DRM_DEVICES = "/dev/dri/amd-igpu";
-    # Temporary legacy modesetting workaround; remove after Hyprland testing.
-    AQ_NO_ATOMIC = "1";
+    # Aquamarine >= 0.15 includes the HX 370 panel max_bpc fallback.
+    # Leave atomic modesetting enabled to use and test that fix.
     NIXOS_OZONE_WL = "1";
   };
 

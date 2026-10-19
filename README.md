@@ -53,18 +53,36 @@ use decimal bus numbers 101 and 100 respectively. A udev rule exposes AMD as
 `AQ_DRM_DEVICES` uses this alias: PCI by-path names contain colons and cannot be
 used directly in Aquamarine's colon-separated device list.
 
-`AQ_NO_ATOMIC=1` is a temporary legacy modesetting workaround matching the earlier
-recovery approach. It is exported before compositor startup. After successful
-Hyprland testing, try removing only that variable and rebuilding; retain the GPU
-alias. An AMD-only compositor may not drive display connectors wired to NVIDIA.
-Hyprland's Home Manager configuration explicitly uses Hyprlang because the
-existing settings are not Lua API calls.
+Hyprland 0.56.2, Aquamarine 0.15.1, portal 1.4.1, and Mesa 26.2.5 now come
+from a separate locked `nixpkgs-unstable` input. The rest of the system, including
+Linux 6.18 and NVIDIA, remains on the existing stable pin. Matching 64-bit and
+32-bit Mesa packages are used. AMD-only Hyprland may not drive connectors wired
+to NVIDIA.
+
+Aquamarine includes the HX 370 panel `max_bpc` fallback from upstream PR #316,
+so `AQ_NO_ATOMIC` is no longer set. The AMD alias remains. If the new stack still
+fails, log out to a text console and test `AQ_NO_ATOMIC=1 start-hyprland` to
+compare; collect the full log before treating that workaround as permanent.
+Hyprland now uses a validated Lua config in `home/hypr/hyprland.lua`.
+
+Update only the graphics input with:
+
+```sh
+nix flake update nixpkgs-unstable
+```
+
+Review the resulting versions and rebuild before installing an updated pin.
+The graphical greeter investigation and an optional SDDM candidate are documented
+in [GREETERS.md](GREETERS.md); the main host still uses tuigreet until that
+candidate has been tested.
 
 After booting the new generation, verify:
 
 ```sh
 readlink -f /dev/dri/amd-igpu
-printenv AQ_DRM_DEVICES AQ_NO_ATOMIC
+printenv AQ_DRM_DEVICES
+# AQ_NO_ATOMIC should be unset:
+printenv AQ_NO_ATOMIC || true
 systemctl --user status niri walker elephant quickshell polkit-gnome
 journalctl --user -b -u niri --no-pager
 ```

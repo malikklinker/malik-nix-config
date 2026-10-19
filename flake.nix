@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    # Update this input independently for Hyprland/Aquamarine fixes.
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
@@ -29,6 +31,11 @@
           home-manager.users.malikk = import ./home/malikk.nix;
         }
       ];
+    };
+
+    # Explicit opt-in trial; the normal host keeps the text greeter for now.
+    nixosConfigurations.zephyrus-sddm = inputs.self.nixosConfigurations.zephyrus.extendModules {
+      modules = [ ./modules/greeter-sddm.nix ];
     };
   };
 }
