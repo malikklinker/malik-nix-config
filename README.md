@@ -1,99 +1,83 @@
-# NixOS laptop configuration
+# NixOS Zephyrus configuration
 
-Flake-based NixOS setup for the ASUS ROG Zephyrus G16 (Ryzen AI 9 HX 370,
-RTX 4070). Hyprland is the intended default session; Niri is also installed.
-Home Manager keeps user applications and coursework tools in the same repo.
+Niri is the temporary default at the greetd/tuigreet login screen. Hyprland
+remains installed and is the intended main desktop once GPU startup is verified.
+Press F3 at login to select it manually. Session remembering is disabled for now
+so an old Hyprland selection cannot override the Niri default.
 
-## What's included
+## Apply on this laptop
 
-- AMD integrated graphics for the regular desktop, with NVIDIA PRIME render
-  offload available for selected apps such as Prism Launcher. Hyprland is
-  pinned to a stable udev alias for the AMD GPU, so it will not initialize the
-  NVIDIA GPU as a second compositor device.
-- Hyprland and Niri Wayland sessions with a minimal greetd/tuigreet login.
-- NetworkManager for Wi-Fi and Blueman for Bluetooth; use `nmtui` in Kitty to
-  connect to Wi-Fi and `blueman-manager` to pair Bluetooth devices. For
-  eduroam, use the Linux profile generated for your institution by the
-  [eduroam Configuration Assistant Tool](https://cat.eduroam.org/); it sets
-  the correct certificate and server identity checks. `nm-connection-editor`
-  is included for managing or troubleshooting NetworkManager profiles.
-- Kitty using Catppuccin Mocha, Fastfetch with a custom Nix flake logo, Walker
-  with a matching Mocha theme, a tracked LazyVim starter config, and a small
-  Quickshell top bar for Hyprland.
-- Prism Launcher, a medium TeX Live set, `latexmk`, `biber`, `chktex`, Zathura,
-  and SymPy.
-- Full-disk encryption is the recommended install choice. The hardware file is
-  an install template and must be updated with the actual disk UUIDs.
+The hardware configuration matches the existing **unencrypted Btrfs** root,
+`home` and `nix` subvolumes, FAT32 EFI partition, and swap partition. It uses the
+UUIDs from `/etc/nixos/hardware-configuration.nix`. It contains no LUKS mapping.
+Do not format or decrypt anything: the installed disk is already unencrypted.
+Regenerate the hardware configuration if installing on another disk or machine.
 
-Press Super+Space to open Walker. Type an app name to launch it, prefix a query
-with `>` to run a command, `/` to search files, or `=` to calculate. Run `ff`
-for the custom Fastfetch display. `nvim` starts the tracked LazyVim setup, with
-explicit Nix, Python, TeX, and Markdown integrations; LazyVim downloads plugins
-into the user's writable data directory on first launch. Kitty uses subtle
-transparency with Hyprland blur, and the Kitty and Hyprland accents use
-Catppuccin Mocha. The
-Quickshell panel starts with Hyprland and can be edited under `home/quickshell`.
-
-## Before installing
-
-1. Boot the NixOS installer in UEFI mode and connect to Wi-Fi or Ethernet.
-2. Identify the internal drive with `lsblk`. Back up anything you need: making
-   the new partition table erases that drive.
-3. Partition the internal drive as GPT with a 1 GiB EFI system partition and a
-   remaining Linux partition. Format the EFI partition as FAT32. Encrypt the
-   Linux partition with LUKS, open it as `/dev/mapper/cryptroot`, then format
-   that mapped device as ext4. Mount it at `/mnt` and mount the EFI partition at
-   `/mnt/boot`.
-4. Generate the machine config with
-   `sudo nixos-generate-config --root /mnt`. Copy the generated
-   `/mnt/etc/nixos/hardware-configuration.nix` into
-   `hosts/zephyrus/hardware-configuration.nix`. Keep the generated root and EFI
-   filesystem declarations, add the LUKS mapping below, and set the root device
-   to `/dev/mapper/cryptroot`:
-
-   ```nix
-   boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/<LUKS-partition-UUID>";
-   ```
-
-   Find the LUKS UUID with `sudo cryptsetup luksUUID /dev/<linux-partition>`.
-5. Make sure ASUS is in Hybrid mode if you want to use the RTX for selected
-   apps: leave `gpu_mux_mode` at `1` (the display stays on the iGPU) and set
-   `dgpu_disable` to `0`, then reboot. Check support with
-   `asusctl armoury list`; not every model exposes both controls. In the
-   installed NixOS system, find the AMD and NVIDIA PCI addresses with
-   `lspci -D | grep -E 'VGA|3D|Display'`. Convert each address from
-   `0000:BB:DD.F` to NixOS form `PCI:BB@0:DD:F`, converting the bus and device
-   hex numbers to decimal. Put those values in `modules/nvidia.nix`.
-6. Clone this repo into `/mnt/etc/nixos` (or copy it there), then install with
-   `sudo nixos-install --flake /mnt/etc/nixos#zephyrus`. Set the root password
-   when prompted. Before rebooting, set the user password with
-   `sudo nixos-enter --root /mnt -c 'passwd malikk'`; then log in through the
-   greetd screen after the first boot.
-
-The machine-specific hardware file and the NVIDIA PCI ID are necessarily local
-to the laptop. The placeholders are deliberate; replace them before
-installing. `lspci` in the current environment shows the AMD graphics device
-but not the RTX because it is currently disabled. Enable Hybrid mode and reboot
-before looking up the Nvidia ID. Hyprland remains pinned to the AMD GPU in
-Hybrid mode. Use `nvidia-offload prismlauncher` to start Prism with the RTX
-4070; Integrated mode disables the dGPU and therefore cannot run offloaded
-apps.
-
-`services.asusd` provides the ASUS control service and CLI. For regular use,
-leave the machine in Hybrid mode and let `AQ_DRM_DEVICES` keep Nvidia out of
-Hyprland's compositor. If Hybrid mode still causes problems, use Integrated
-mode with `asusctl armoury set dgpu_disable 1` and reboot; turn it back on with
-`asusctl armoury set dgpu_disable 0` and reboot. The settings depend on what
-`asusctl armoury list` reports for this exact laptop. The configuration does
-not install the experimental Cardwire dGPU switcher.
-
-## After installation
-
-Clone or pull updates into `/etc/nixos`, then apply them with:
+From this checkout, build and install a generation for the next boot:
 
 ```sh
-sudo nixos-rebuild switch --flake /etc/nixos#zephyrus
+sudo nixos-rebuild boot --flake path:/home/malikk/malik-nix-config#zephyrus
 ```
 
-Hyprland starts by default at the greetd screen. Press F3 to choose Niri;
-tuigreet remembers the last selected session.
+The explicit `path:` includes new files even before they are added to Git.
+Reboot when ready; `boot` leaves the running desktop alone. Keep the previous
+working generation available in systemd-boot for recovery. After login, later
+updates can use `nixos-rebuild switch` with the same flake argument.
+
+## Desktop controls
+
+Both sessions use Super+Return for Kitty, Super+Space for Walker, Super+Q to
+close a window, Super+F for fullscreen, Super+V for floating, and Super+L to lock.
+In Niri, use Super+arrows to focus, Super+Shift+arrows to move, Super+1–5 for
+workspaces, Super+Shift+1–5 to move columns between workspaces, Print for a
+screenshot, Super+Shift+E to log out, and Super+Shift+/ for the shortcut overlay.
+Niri workspaces are dynamic: unused higher indices select the last empty one.
+
+Walker supports app search, `>` for commands, `/` for files, and `=` for maths.
+Elephant supplies its providers. The Quickshell panel, notifications, PolicyKit
+agent, and NetworkManager applet are available across both sessions. Run `nmtui`
+for Wi-Fi or `nm-connection-editor` for connection profiles, and
+`blueman-manager` for Bluetooth. Niri uses xwayland-satellite for X11 apps.
+The configuration does not currently provide automatic idle locking.
+
+Kitty, Walker, and the desktop use Catppuccin Mocha and JetBrainsMono Nerd Font.
+Run `ff` for Fastfetch. `nvim` starts LazyVim with Nix, Python, TeX, and Markdown
+integrations; plugins download on first use. Coursework tools include TeX Live,
+latexmk, biber, chktex, Zathura, and SymPy.
+
+## Graphics recovery and Hyprland
+
+The AMD GPU is at PCI `0000:65:00.0`; NVIDIA is at `0000:64:00.0`. PRIME bus IDs
+use decimal bus numbers 101 and 100 respectively. A udev rule exposes AMD as
+`/dev/dri/amd-igpu`, independent of boot-dependent card numbering.
+`AQ_DRM_DEVICES` uses this alias: PCI by-path names contain colons and cannot be
+used directly in Aquamarine's colon-separated device list.
+
+`AQ_NO_ATOMIC=1` is a temporary legacy modesetting workaround matching the earlier
+recovery approach. It is exported before compositor startup. After successful
+Hyprland testing, try removing only that variable and rebuilding; retain the GPU
+alias. An AMD-only compositor may not drive display connectors wired to NVIDIA.
+Hyprland's Home Manager configuration explicitly uses Hyprlang because the
+existing settings are not Lua API calls.
+
+After booting the new generation, verify:
+
+```sh
+readlink -f /dev/dri/amd-igpu
+printenv AQ_DRM_DEVICES AQ_NO_ATOMIC
+systemctl --user status niri walker elephant quickshell polkit-gnome
+journalctl --user -b -u niri --no-pager
+```
+
+Test Hyprland by selecting it with F3 after logging out of Niri. If it still
+hangs, return to a text console with Ctrl+Alt+F2, log in, and collect the latest
+`$XDG_RUNTIME_DIR/hypr/*/hyprland.log` and `journalctl -b -k`. The last log line
+alone does not identify which backend operation is blocked. Startup on the
+physical GPU still needs testing; config validation cannot establish that.
+
+Keep the laptop in Hybrid mode for NVIDIA offload, and use
+`nvidia-offload prismlauncher` for the RTX. `services.asusd` provides `asusctl`;
+check `asusctl armoury list` before changing model-specific GPU controls.
+The kernel remains pinned to Linux 6.18 for NVIDIA build compatibility.
+
+See [AUDIT.md](AUDIT.md) for findings and validation status.
