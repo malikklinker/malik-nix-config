@@ -4,10 +4,10 @@
 @define-color error_bg_color @RED@;
 @define-color error_fg_color @BACKGROUND@;
 * { all: unset; font-family: "JetBrainsMono Nerd Font"; font-size: 14px; }
-.box-wrapper { background: @window_bg_color; color: @theme_fg_color; border: 2px solid @accent_bg_color; border-radius: 10px; padding: 12px; }
-.input { background: @SURFACE@; color: @theme_fg_color; caret-color: @ACCENT@; border: 1px solid @OVERLAY@; border-radius: 6px; padding: 10px 12px; }
+.box-wrapper { background: @window_bg_color; color: @theme_fg_color; border: 2px solid @accent_bg_color; border-radius: 0; padding: 12px; }
+.input { background: @SURFACE@; color: @theme_fg_color; caret-color: @ACCENT@; border: 1px solid @OVERLAY@; border-radius: 0; padding: 10px 12px; }
 .list, .item-text { color: @theme_fg_color; }
-.item-box { border-radius: 6px; padding: 8px; }
+.item-box { border-radius: 0; padding: 8px; }
 child:selected .item-box, row:selected .item-box { background: @OVERLAY@; border-left: 3px solid @ACCENT@; }
 .item-subtext, .placeholder, .elephant-hint { color: @SUBTEXT@; }
 scrollbar { opacity: 0; }

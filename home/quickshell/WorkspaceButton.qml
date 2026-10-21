@@ -11,7 +11,7 @@ Rectangle {
 
   implicitWidth: Math.max(28, caption.implicitWidth + 12)
   implicitHeight: 26
-  radius: 6
+  radius: 0
   color: selected ? Theme.accent : pointer.containsMouse ? Theme.overlay : "transparent"
   border.width: urgent && !selected ? 1 : 0
   border.color: Theme.red

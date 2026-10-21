@@ -81,7 +81,7 @@ PanelWindow {
       id: powerButton
       Layout.preferredWidth: 28
       Layout.preferredHeight: 28
-      radius: 6
+      radius: 0
       color: powerMouse.containsMouse ? Theme.overlay : "transparent"
 
       Text {
@@ -119,7 +119,7 @@ PanelWindow {
 
       Rectangle {
         anchors.fill: parent
-        radius: 10
+        radius: 0
         color: Theme.background
 
         Column {
@@ -149,7 +149,7 @@ PanelWindow {
               required property string modelData
               width: menuColumn.width
               height: 32
-              radius: 6
+              radius: 0
               color: actionMouse.containsMouse ? Theme.surface : "transparent"
 
               Text {

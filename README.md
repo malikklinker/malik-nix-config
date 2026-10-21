@@ -11,6 +11,8 @@ dependencies. The greeter uses JetBrainsMono Nerd Font at size 12.
 
 Fish is Malik's login shell, with Home Manager supplying its aliases and setup.
 New logins and terminals use Fish after the system configuration is applied.
+Fish uses its bundled Scales prompt and runs Fastfetch as the greeting in
+interactive terminals. Noninteractive commands stay quiet.
 
 ## Apply on this laptop
 
@@ -35,6 +37,8 @@ updates can use `nixos-rebuild switch` with the same flake argument.
 
 Both sessions use Super+Return for Kitty, Super+Space for Walker, Super+Q to
 close a window, Super+F for fullscreen, Super+V for floating, and Super+L to lock.
+In Hyprland, Super+arrows focuses the neighboring window in that direction.
+Super+Shift+S selects a screenshot region and copies it to the clipboard.
 In Niri, use Super+arrows to focus, Super+Shift+arrows to move, Super+1–5 for
 workspaces, Super+Shift+1–5 to move columns between workspaces, Print for a
 screenshot, Super+Shift+E to log out, and Super+Shift+/ for the shortcut overlay.
@@ -73,8 +77,19 @@ Quickshell, Hyprland/Niri, Kitty, Walker, Mako, and open Neovim windows follow
 the palette. Fastfetch uses the terminal's colors. GTK 3/4 receive palette CSS
 and the light/dark preference; some GTK applications need reopening to pick up
 changes. SDDM retains its separately configured Catppuccin Mocha login theme.
-Run `ff` for Fastfetch. `nvim` starts LazyVim with Nix, Python, TeX, and Markdown
-integrations; plugins download on first use. Coursework tools include TeX Live,
+Windows, Walker, Mako notifications, and Quickshell controls use square corners.
+Hyprland uses 3 px inner and 6 px outer gaps; Niri uses 6 px gaps.
+Hyprland’s background logo and splash text, including Hyprpaper’s splash,
+are disabled.
+Hyprland uses the standard Adwaita arrow cursor at size 24. Hyprpaper displays
+the Evening Sky wallpaper by default, with three pinned images from the
+[Catppuccin wallpaper collection](https://github.com/zhichaoh/catppuccin-wallpapers)
+available in `~/Pictures/Wallpapers`. Run `wallpaper mountains`,
+`wallpaper yosemite`, or `wallpaper evening` to switch for the current session;
+the default returns on the next login. Running `wallpaper` alone selects Evening.
+
+Run `ff` for Fastfetch. `nvim` starts LazyVim with Nix, Python, TeX, and
+Markdown integrations; plugins download on first use. Coursework tools include TeX Live,
 latexmk, biber, chktex, Zathura, and SymPy.
 
 ## Graphics recovery and Hyprland

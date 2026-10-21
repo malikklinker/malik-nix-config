@@ -1,7 +1,40 @@
-{ config, inputs, pkgs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 
 let
   unstablePkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  # Pin the artwork and hashes so rebuilds keep the same wallpaper collection.
+  wallpaperBase = "https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/1023077979591cdeca76aae94e0359da1707a60e/landscapes";
+  wallpapers = {
+    mountains = pkgs.fetchurl {
+      name = "salty-mountains.png";
+      url = "${wallpaperBase}/salty_mountains.png";
+      sha256 = "18mw0g8sd3rg4b7lw9c516jwnjnsb31n7cwrzcmyddf0bq6a48fn";
+    };
+    yosemite = pkgs.fetchurl {
+      name = "yosemite.png";
+      url = "${wallpaperBase}/yosemite.png";
+      sha256 = "0zyphcvh6dxbq997h716lcr2kpilp4jid9hp2sdjphpxpf824nck";
+    };
+    evening = pkgs.fetchurl {
+      name = "evening-sky.png";
+      url = "${wallpaperBase}/evening-sky.png";
+      sha256 = "0kb87w736abdf794dk9fvqln56axzskxia1g6zdjrqzl7v539035";
+    };
+  };
+  wallpaperApp = pkgs.writeShellScriptBin "wallpaper" ''
+    case "''${1:-evening}" in
+      mountains) image=${wallpapers.mountains} ;;
+      yosemite) image=${wallpapers.yosemite} ;;
+      evening) image=${wallpapers.evening} ;;
+      *) echo "Usage: wallpaper [mountains|yosemite|evening]" >&2; exit 2 ;;
+    esac
+    exec ${unstablePkgs.hyprland}/bin/hyprctl hyprpaper wallpaper ",$image,cover"
+  '';
   sessionApp = pkgs.writeShellScriptBin "session-app" ''
     if uwsm check is-active >/dev/null 2>&1; then
       exec uwsm app -- "$@"
@@ -12,7 +45,10 @@ let
 in
 
 {
-  imports = [ ./theme.nix ./audio.nix ];
+  imports = [
+    ./theme.nix
+    ./audio.nix
+  ];
 
   home.username = "malikk";
   home.homeDirectory = "/home/malikk";
@@ -21,12 +57,57 @@ in
   programs.home-manager.enable = true;
   programs.git.enable = true;
   programs.fish.enable = true;
+  programs.fish.interactiveShellInit = ''
+    source ${pkgs.fish}/share/fish/prompts/scales.fish
+  '';
+  programs.fish.functions.fish_greeting = ''
+    if test -t 1; and test "$TERM" != dumb
+      ${pkgs.fastfetch}/bin/fastfetch
+    end
+  '';
 
   programs.codexDesktopLinux.enable = true;
 
-  xdg.configFile."niri/config.kdl".text = builtins.replaceStrings
-    [ "@themePath@" ] [ "${config.xdg.stateHome}/desktop-theme/niri.kdl" ]
-    (builtins.readFile ./niri/config.kdl);
+  home.pointerCursor = {
+    package = pkgs.adwaita-icon-theme;
+    name = "Adwaita";
+    size = 24;
+    x11.enable = true;
+  };
+  # UWSM reads these before launching the compositor and graphical services.
+  xdg.configFile."uwsm/env".text = ''
+    export XCURSOR_THEME=Adwaita
+    export XCURSOR_SIZE=24
+  '';
+  dconf.settings."org/gnome/desktop/interface" = {
+    cursor-theme = "Adwaita";
+    cursor-size = 24;
+  };
+
+  home.file = pkgs.lib.mapAttrs' (
+    name: source: pkgs.lib.nameValuePair "Pictures/Wallpapers/${name}.png" { inherit source; }
+  ) wallpapers;
+
+  services.hyprpaper = {
+    enable = true;
+    settings.splash = false;
+    settings.wallpaper = [
+      {
+        monitor = "";
+        path = "${wallpapers.evening}";
+        fit_mode = "cover";
+      }
+    ];
+  };
+  # Hyprpaper is only needed in Hyprland, and starts after UWSM imports its env.
+  systemd.user.services.hyprpaper.Unit.ConditionEnvironment = pkgs.lib.mkForce [
+    "WAYLAND_DISPLAY"
+    "XDG_CURRENT_DESKTOP=Hyprland"
+  ];
+
+  xdg.configFile."niri/config.kdl".text =
+    builtins.replaceStrings [ "@themePath@" ] [ "${config.xdg.stateHome}/desktop-theme/niri.kdl" ]
+      (builtins.readFile ./niri/config.kdl);
   programs.swaylock.enable = true;
   services.mako.enable = true;
   services.polkit-gnome.enable = true;
@@ -50,6 +131,8 @@ in
       size = 12;
     };
     settings = {
+      # Do not restore a maximized window and override the compositor's tiling.
+      remember_window_size = false;
       confirm_os_window_close = 0;
       cursor_shape = "beam";
       enable_audio_bell = false;
@@ -160,9 +243,18 @@ in
         empty = [ "desktopapplications" ];
         max_results = 40;
         prefixes = [
-          { prefix = ">"; provider = "runner"; }
-          { prefix = "/"; provider = "files"; }
-          { prefix = "="; provider = "calc"; }
+          {
+            prefix = ">";
+            provider = "runner";
+          }
+          {
+            prefix = "/";
+            provider = "files";
+          }
+          {
+            prefix = "=";
+            provider = "calc";
+          }
         ];
       };
     };
@@ -174,6 +266,7 @@ in
 
   home.packages = with pkgs; [
     sessionApp
+    wallpaperApp
     librewolf
     # Keep Codex current without moving the stable system package set.
     unstablePkgs.codex
@@ -191,7 +284,8 @@ in
     pyright
     ruff
     texlab
-    gcc
+    # Prefer GCC for shared commands such as cc and c++.
+    (lib.hiPrio gcc)
     gnumake
     lazygit
     lua-language-server
@@ -199,6 +293,11 @@ in
     stylua
     tree-sitter
     nodejs
+    openblas
+    openblas.dev
+    clang
+    rustc
+    cargo
 
     # Math coursework and LaTeX
     texlive.combined.scheme-medium

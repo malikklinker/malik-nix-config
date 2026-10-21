@@ -11,7 +11,7 @@ Rectangle {
 
   implicitWidth: caption.implicitWidth + 12
   implicitHeight: 28
-  radius: 6
+  radius: 0
   color: pointer.containsMouse ? Theme.surface : "transparent"
 
   PwObjectTracker {
