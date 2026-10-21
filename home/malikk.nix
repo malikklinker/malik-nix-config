@@ -51,6 +51,7 @@ in
     ./theme.nix
     ./audio.nix
     ./hardware.nix
+    ./neovim.nix
   ];
 
   home.username = "malikk";

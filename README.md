@@ -136,6 +136,32 @@ Run `ff` for Fastfetch. `nvim` starts LazyVim with Nix, Python, TeX, and
 Markdown integrations; plugins download on first use. Coursework tools include TeX Live,
 latexmk, biber, chktex, Zathura, and SymPy.
 
+## Neovim development tools
+
+Language servers and formatters are installed through Nix. Fortran uses
+[fortls](https://fortls.fortran-lang.org/editor_integration.html), with GNU
+Fortran, `fpm`, and `fprettify` available in the shell. C/C++ use clangd with
+clangd extensions (including source/header switching on Space c h). Rust uses
+Rustaceanvim, rust-analyzer, Clippy checks, rustfmt, and crates.nvim for Cargo
+dependencies. Lua has lua-language-server and LazyDev for Neovim APIs.
+CMake, Make, TOML, JSON, YAML, and shell files also receive appropriate syntax
+support; CMake, TOML, JSON, YAML, and shell have language servers.
+
+Use `gd` for definitions, `gr` for references, `K` for hover documentation, and
+Space c a for code actions. Space c f formats manually; format on save remains
+disabled. Space m g configures CMake, Space m b builds, Space m r runs, and
+Space m t selects a target. CMake configuration exports `compile_commands.json`
+for clangd; for Make projects, `bear -- make` can generate it instead.
+Fortran projects can configure include and source paths in a `.fortls` file.
+Fortran uses Neovim's built-in syntax highlighting: Tree-sitter's error recovery
+can split identifiers into keyword fragments while a statement is incomplete.
+The Fortran parser remains available for structural features, and fortls remains
+enabled for completion, navigation, and diagnostics.
+
+Neovim notification popups and LSP progress popups are disabled. Diagnostics
+remain visible, and ordinary error messages are available through `:messages`.
+Reopen Neovim to load changes; an already running editor keeps its loaded config.
+
 ## Graphics recovery and Hyprland
 
 The AMD GPU is at PCI `0000:65:00.0`; NVIDIA is at `0000:64:00.0`. PRIME bus IDs
