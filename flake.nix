@@ -17,24 +17,31 @@
     };
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, codex-desktop-linux, ... }: {
-    nixosConfigurations.zephyrus = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = { inherit inputs; };
-      modules = [
-        ./hosts/zephyrus
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.sharedModules = [ codex-desktop-linux.homeManagerModules.default ];
-          home-manager.users.malikk = import ./home/malikk.nix;
-        }
-      ];
-    };
+  outputs =
+    inputs@{
+      nixpkgs,
+      home-manager,
+      codex-desktop-linux,
+      ...
+    }:
+    {
+      nixosConfigurations.zephyrus = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./hosts/zephyrus
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.sharedModules = [ codex-desktop-linux.homeManagerModules.default ];
+            home-manager.users.malikk = import ./home/malikk.nix;
+          }
+        ];
+      };
 
-    # Compatibility alias for the former SDDM trial configuration.
-    nixosConfigurations.zephyrus-sddm = inputs.self.nixosConfigurations.zephyrus;
-  };
+      # Compatibility alias for the former SDDM trial configuration.
+      nixosConfigurations.zephyrus-sddm = inputs.self.nixosConfigurations.zephyrus;
+    };
 }

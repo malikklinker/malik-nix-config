@@ -121,7 +121,7 @@ def apply_theme(theme, state, assets):
                 f"text-color={colors['text']}",
                 f"border-color={colors['accent']}",
                 "border-size=2",
-                "border-radius=8",
+                "border-radius=0",
                 "padding=12",
                 "default-timeout=5000",
                 "[urgency=critical]",

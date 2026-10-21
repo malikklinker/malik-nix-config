@@ -8,7 +8,7 @@ Rectangle {
   id: root
   implicitWidth: 28
   implicitHeight: 28
-  radius: 6
+  radius: 0
   color: pointer.containsMouse ? Theme.overlay : "transparent"
   property string errorMessage: ""
 
@@ -71,7 +71,7 @@ Rectangle {
 
     Rectangle {
       anchors.fill: parent
-      radius: 10
+      radius: 0
       color: Theme.background
 
       Text {
@@ -90,7 +90,7 @@ Rectangle {
         width: parent.width - 32
         height: 34
         color: Theme.surface
-        radius: 6
+        radius: 0
 
         TextInput {
           id: search
@@ -134,7 +134,7 @@ Rectangle {
           required property int index
           width: schemes.width
           height: 48
-          radius: 6
+          radius: 0
           color: row.modelData.slug === Theme.current.slug ? Theme.surface
             : choice.containsMouse || ListView.isCurrentItem && schemes.activeFocus ? Theme.overlay : "transparent"
 
@@ -166,7 +166,7 @@ Rectangle {
                 required property string modelData
                 width: 26
                 height: 12
-                radius: 3
+                radius: 0
                 color: modelData
               }
             }
