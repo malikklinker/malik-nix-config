@@ -9,7 +9,7 @@ let
   state = "${config.xdg.stateHome}/desktop-theme";
   python = pkgs.python3.withPackages (p: [ p.pyyaml ]);
   presets = pkgs.runCommand "desktop-theme-presets" { nativeBuildInputs = [ python ]; } ''
-    python ${./theme/build_presets.py} ${pkgs.base16-schemes}/share/themes "$out"
+    python ${./theme/build_presets.py} ${pkgs.base16-schemes}/share/themes "$out" ${./theme/schemes}
     cp ${./theme/walker.css.in} "$out/walker.css.in"
   '';
   themeSet = pkgs.writeShellApplication {
@@ -34,6 +34,7 @@ in
     pkgs.tinty
   ];
   xdg.configFile = {
+    "desktop-theme/apply".source = "${themeSet}/bin/theme-set";
     "desktop-theme/catalog.json".source = "${presets}/catalog.json";
     "desktop-theme/tinty.toml".source = (pkgs.formats.toml { }).generate "desktop-tinty.toml" {
       default-scheme = "base16-catppuccin-mocha";
@@ -47,16 +48,25 @@ in
         }
       ];
     };
+    "nvim/lua/config/desktop-syntax.lua".source = ./nvim/lua/config/desktop-syntax.lua;
     "nvim/lua/config/desktop-theme.lua".source = ./nvim/lua/config/desktop-theme.lua;
     "nvim/colors/desktop.lua".source = ./nvim/colors/desktop.lua;
     "nvim/lua/plugins/desktop-theme.lua".text = ''
-      return {{
-        "nvim-mini/mini.base16",
-        name = "mini.base16",
-        dir = "${pkgs.vimPlugins.mini-base16}",
-        priority = 1000,
-        config = function() require("config.desktop-theme").setup() end,
-      }}
+      return {
+        {
+          "nvim-mini/mini.base16",
+          name = "mini.base16",
+          dir = "${pkgs.vimPlugins.mini-base16}",
+          priority = 1000,
+          config = function() require("config.desktop-theme").setup() end,
+        },
+        {
+          "nvim-lualine/lualine.nvim",
+          opts = function(_, opts)
+            opts.options.theme = require("config.desktop-theme").statusline_theme()
+          end,
+        },
+      }
     '';
   };
 

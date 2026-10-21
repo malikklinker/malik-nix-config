@@ -1,6 +1,8 @@
 singleton Theme 1.0 Theme.qml
 ThemePicker 1.0 ThemePicker.qml
 VolumeControl 1.0 VolumeControl.qml
+HardwareControl 1.0 HardwareControl.qml
+ControlSlider 1.0 ControlSlider.qml
 WorkspaceButton 1.0 WorkspaceButton.qml
 HyprlandWorkspaces 1.0 HyprlandWorkspaces.qml
 NiriWorkspaces 1.0 NiriWorkspaces.qml

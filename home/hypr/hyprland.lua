@@ -57,6 +57,10 @@ hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("desktop-volume up"), { locked =
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("desktop-volume down"), { locked = true, repeating = true })
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("desktop-volume mute"), { locked = true })
 hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("desktop-volume mic-mute"), { locked = true })
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("desktop-hardware screen-up"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("desktop-hardware screen-down"), { locked = true, repeating = true })
+hl.bind("XF86KbdBrightnessUp", hl.dsp.exec_cmd("desktop-hardware keyboard-up"), { locked = true, repeating = true })
+hl.bind("XF86KbdBrightnessDown", hl.dsp.exec_cmd("desktop-hardware keyboard-down"), { locked = true, repeating = true })
 
 for workspace = 1, 5 do
     hl.bind("SUPER + " .. workspace, hl.dsp.focus({ workspace = workspace }))

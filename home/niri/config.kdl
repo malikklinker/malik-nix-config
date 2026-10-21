@@ -52,4 +52,8 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn "desktop-volume" "down"; }
     XF86AudioMute allow-when-locked=true { spawn "desktop-volume" "mute"; }
     XF86AudioMicMute allow-when-locked=true { spawn "desktop-volume" "mic-mute"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn "desktop-hardware" "screen-up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "desktop-hardware" "screen-down"; }
+    XF86KbdBrightnessUp allow-when-locked=true { spawn "desktop-hardware" "keyboard-up"; }
+    XF86KbdBrightnessDown allow-when-locked=true { spawn "desktop-hardware" "keyboard-down"; }
 }

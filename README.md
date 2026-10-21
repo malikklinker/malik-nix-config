@@ -12,7 +12,8 @@ dependencies. The greeter uses JetBrainsMono Nerd Font at size 12.
 Fish is Malik's login shell, with Home Manager supplying its aliases and setup.
 New logins and terminals use Fish after the system configuration is applied.
 Fish uses its bundled Scales prompt and runs Fastfetch as the greeting in
-interactive terminals. Noninteractive commands stay quiet.
+interactive terminals, with a custom starry-sky ASCII scene.
+Noninteractive commands stay quiet.
 
 ## Apply on this laptop
 
@@ -32,6 +33,22 @@ The explicit `path:` includes new files even before they are added to Git.
 Reboot when ready; `boot` leaves the running desktop alone. Keep the previous
 working generation available in systemd-boot for recovery. After login, later
 updates can use `nixos-rebuild switch` with the same flake argument.
+
+## Performance after a drained battery
+
+On October 21, the CPU stayed near 600 MHz under load after the battery died,
+including during a 2 minute 6 second boot. Temperatures were cool and memory
+and disk space were available. Reconnecting the charger after a 10 second
+disconnect restored boosting to 5.15 GHz; the same one-million-iteration
+PBKDF2-SHA256 probe fell from 5.52 seconds to 0.103 seconds. Cycling the firmware
+profile alone had not cleared the clamp. If this recurs, reconnect the charger
+and check CPU frequency under load before changing graphics settings.
+
+The configuration creates `/etc/asusd` before services start, as the ASUS
+daemon's sandbox requires that directory even without configured RON files.
+Home Manager preserves colliding files with `.before-home-manager` backups
+(numbered if needed), so existing desktop settings do not prevent activation.
+Boot time after restoring CPU speed still needs a subsequent boot measurement.
 
 ## Desktop controls
 
@@ -60,6 +77,27 @@ keys use the same 5% steps; volume-up also unmutes. The microphone mute key
 toggles the default input. These keys work in Hyprland and Niri, including while
 locked. The bar keeps the percentage visible when muted (with a red mute icon).
 
+Click the sun/brightness percentage beside the volume indicator for laptop
+controls. The screen slider controls the AMD panel (1–100%); keyboard lighting
+snaps to the hardware's four levels: Off, Low, Medium, and High. Scroll over the sun for 5%
+screen brightness steps. Screen and keyboard brightness keys work in both
+Hyprland and Niri, including while locked.
+
+“Match keyboard to theme” applies the selected palette's accent as a static
+keyboard color, at login and on palette changes. It preserves the chosen
+keyboard brightness, including off. The toggle persists; disabling it leaves
+the current color in place so other ASUS lighting effects can be selected.
+Quiet, Balanced, and Performance buttons change the current firmware power
+profile. ASUS control still switches profiles on charger connection changes.
+The panel reports command failures and unavailable hardware directly.
+The lid's Slash lighting is disabled persistently, including boot, shutdown,
+sleep, battery-warning, and lid-closed animations.
+
+The shared CLI is `desktop-hardware`: use `status`, `screen 60`, `keyboard 2`,
+`profile balanced`, `theme-sync on`, or `sync`. ASUS controls use this installed
+version's syntax: `asusctl aura effect static -c 8aafd0` for color and
+`asusctl leds set med` for keyboard brightness.
+
 Hyprland's session is managed by UWSM; Home Manager's separate Hyprland systemd
 integration is disabled. Walker and Elephant start after `graphical-session.target`
 so they inherit the compositor's display environment. Starting Elephant earlier
@@ -69,12 +107,18 @@ Catppuccin Mocha is the default desktop palette, with JetBrainsMono Nerd Font.
 Click the flower icon beside the hostname in Quickshell for a searchable
 popup with color swatches, or run `theme-set` to open it. Use `theme-set nord`,
 `theme-set mocha`, `theme-set latte`, or another name from `theme-set --list`
-to switch directly. `theme-set --current` prints the current selection.
+to switch directly. The custom **Midnight Blue** preset (`theme-set midnight-blue`)
+uses near-black surfaces with muted blue and lavender accents. `theme-set --current` prints the current selection.
 
 Tinty applies the bundled Base16 palettes offline; switching needs no rebuild
 after the initial installation. The selection survives login and rebuilds.
 Quickshell, Hyprland/Niri, Kitty, Walker, Mako, and open Neovim windows follow
-the palette. Fastfetch uses the terminal's colors. GTK 3/4 receive palette CSS
+the palette. Neovim also applies the palette to tabs, floating menus, and the
+status line. Syntax colors share defaults across legacy highlighting, Tree-sitter,
+and LSP semantic tokens. Midnight Blue uses blue keywords/functions, lavender
+types/constants, cyan strings, and neutral identifiers. Red, green, and yellow
+remain available for diagnostics, Git changes, and mode indicators.
+Fastfetch uses the terminal's colors. GTK 3/4 receive palette CSS
 and the light/dark preference; some GTK applications need reopening to pick up
 changes. SDDM retains its separately configured Catppuccin Mocha login theme.
 Windows, Walker, Mako notifications, and Quickshell controls use square corners.
@@ -82,11 +126,11 @@ Hyprland uses 3 px inner and 6 px outer gaps; Niri uses 6 px gaps.
 Hyprland’s background logo and splash text, including Hyprpaper’s splash,
 are disabled.
 Hyprland uses the standard Adwaita arrow cursor at size 24. Hyprpaper displays
-the Evening Sky wallpaper by default, with three pinned images from the
+a dark Midnight Blue mountain wallpaper by default, alongside three pinned images from the
 [Catppuccin wallpaper collection](https://github.com/zhichaoh/catppuccin-wallpapers)
-available in `~/Pictures/Wallpapers`. Run `wallpaper mountains`,
+available in `~/Pictures/Wallpapers`. Run `wallpaper midnight`, `wallpaper mountains`,
 `wallpaper yosemite`, or `wallpaper evening` to switch for the current session;
-the default returns on the next login. Running `wallpaper` alone selects Evening.
+the default returns on the next login. Running `wallpaper` alone selects Midnight Blue.
 
 Run `ff` for Fastfetch. `nvim` starts LazyVim with Nix, Python, TeX, and
 Markdown integrations; plugins download on first use. Coursework tools include TeX Live,

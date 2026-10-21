@@ -31,6 +31,11 @@ def run(command):
 def reload_apps(theme):
     if os.environ.get("DESKTOP_THEME_NO_RELOAD") == "1":
         return
+    # Hardware sync is optional: an unavailable ASUS daemon must not prevent
+    # the rest of the desktop from changing palette.
+    result = run(["desktop-hardware", "sync"])
+    if result is not None and result.returncode:
+        print(result.stderr.strip(), file=sys.stderr)
     if os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
         run(["hyprctl", "reload", "config-only"])
     # Niri watches the included palette file for changes.
