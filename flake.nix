@@ -31,13 +31,18 @@
         modules = [
           ./hosts/zephyrus
           home-manager.nixosModules.home-manager
-          {
+          ({ pkgs, ... }: {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            # Preserve pre-existing desktop configuration during activation.
+            # Numbered backups also allow a later migration to run safely.
+            home-manager.backupCommand = pkgs.writeShellScript "home-manager-backup" ''
+              exec ${pkgs.coreutils}/bin/mv --backup=numbered -- "$1" "$1.before-home-manager"
+            '';
             home-manager.extraSpecialArgs = { inherit inputs; };
             home-manager.sharedModules = [ codex-desktop-linux.homeManagerModules.default ];
             home-manager.users.malikk = import ./home/malikk.nix;
-          }
+          })
         ];
       };
 

@@ -1,0 +1,24 @@
+system: base16
+name: Midnight Blue
+author: Malik
+variant: dark
+palette:
+  base00: '#090c14'
+  base01: '#121824'
+  base02: '#26364b'
+  base03: '#536479'
+  base04: '#8a98aa'
+  base05: '#c5cbd6'
+  base06: '#d9dfea'
+  base07: '#ecf0f6'
+  base08: '#cf8993'
+  base09: '#cca17e'
+  base0A: '#c9bc8b'
+  base0B: '#96b3a3'
+  base0C: '#8cbabc'
+  base0D: '#8aafd0'
+  base0E: '#ada0d5'
+  base0F: '#b294b3'
+desktop-roles:
+  accent: base0D
+  secondary: base0E

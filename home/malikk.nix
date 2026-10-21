@@ -10,6 +10,7 @@ let
   # Pin the artwork and hashes so rebuilds keep the same wallpaper collection.
   wallpaperBase = "https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/1023077979591cdeca76aae94e0359da1707a60e/landscapes";
   wallpapers = {
+    midnight = ./wallpapers/midnight-blue.png;
     mountains = pkgs.fetchurl {
       name = "salty-mountains.png";
       url = "${wallpaperBase}/salty_mountains.png";
@@ -27,11 +28,12 @@ let
     };
   };
   wallpaperApp = pkgs.writeShellScriptBin "wallpaper" ''
-    case "''${1:-evening}" in
+    case "''${1:-midnight}" in
+      midnight) image=${wallpapers.midnight} ;;
       mountains) image=${wallpapers.mountains} ;;
       yosemite) image=${wallpapers.yosemite} ;;
       evening) image=${wallpapers.evening} ;;
-      *) echo "Usage: wallpaper [mountains|yosemite|evening]" >&2; exit 2 ;;
+      *) echo "Usage: wallpaper [midnight|mountains|yosemite|evening]" >&2; exit 2 ;;
     esac
     exec ${unstablePkgs.hyprland}/bin/hyprctl hyprpaper wallpaper ",$image,cover"
   '';
@@ -48,6 +50,7 @@ in
   imports = [
     ./theme.nix
     ./audio.nix
+    ./hardware.nix
   ];
 
   home.username = "malikk";
@@ -94,7 +97,7 @@ in
     settings.wallpaper = [
       {
         monitor = "";
-        path = "${wallpapers.evening}";
+        path = "${wallpapers.midnight}";
         fit_mode = "cover";
       }
     ];
@@ -145,19 +148,18 @@ in
     enable = true;
     settings = {
       logo = {
-        type = "builtin";
-        source = "nixos";
+        type = "data";
+        source = builtins.readFile ./fastfetch/starry-sky.txt;
         color = {
-          "1" = "magenta";
-          "2" = "blue";
-          "3" = "red";
-          "4" = "magenta";
+          "1" = "blue";
+          "2" = "magenta";
+          "3" = "white";
         };
         padding.right = 2;
       };
       display = {
         separator = " 󰁔 ";
-        color.keys = "magenta";
+        color.keys = "blue";
       };
       modules = [
         "title"

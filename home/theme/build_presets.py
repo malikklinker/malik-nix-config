@@ -9,9 +9,10 @@ import sys
 import yaml
 
 
-source, output = map(Path, sys.argv[1:])
+source, output, custom = map(Path, sys.argv[1:])
 favorites = [
     "catppuccin-mocha",
+    "midnight-blue",
     "catppuccin-latte",
     "catppuccin-frappe",
     "catppuccin-macchiato",
@@ -42,7 +43,9 @@ themes = output / "template/themes"
 schemes.mkdir(parents=True)
 themes.mkdir(parents=True)
 catalog = []
-for file in sorted(source.glob("*.yaml")):
+files = {file.stem: file for file in source.glob("*.yaml")}
+files.update({file.stem: file for file in custom.glob("*.yaml")})
+for file in sorted(files.values()):
     data = yaml.safe_load(file.read_text())
     if data.get("system") != "base16":
         continue
@@ -58,7 +61,10 @@ for file in sorted(source.glob("*.yaml")):
         "name": data["name"],
         "variant": data.get("variant", "dark"),
         "palette": palette,
-        "colors": {role: palette[key] for role, key in roles.items()},
+        "colors": {
+            role: palette[key]
+            for role, key in (roles | data.get("desktop-roles", {})).items()
+        },
         "swatches": [
             palette[key]
             for key in ["base00", "base05", "base08", "base0B", "base0D", "base0E"]

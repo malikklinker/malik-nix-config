@@ -22,7 +22,7 @@ Rectangle {
   function choose(theme) {
     if (applyTheme.running) return
     errorMessage = ""
-    applyTheme.command = ["theme-set", theme.slug]
+    applyTheme.command = [`${Theme.configHome}/desktop-theme/apply`, theme.slug]
     applyTheme.running = true
   }
 

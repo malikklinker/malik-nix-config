@@ -51,6 +51,7 @@ PanelWindow {
     Item { Layout.fillWidth: true }
 
     VolumeControl {}
+    HardwareControl {}
 
     Text {
       text: {

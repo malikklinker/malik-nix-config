@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
@@ -31,7 +36,10 @@
   # the NVIDIA driver with a compatible fix.
   boot.kernelPackages = pkgs.linuxPackages_6_18;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
   nix.settings.auto-optimise-store = true;
   nix.gc = {
     automatic = true;
@@ -45,7 +53,12 @@
     isNormalUser = true;
     description = "Malik";
     shell = pkgs.fish;
-    extraGroups = [ "networkmanager" "wheel" "video" "input" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "video"
+      "input"
+    ];
     # Set a login password after installation with `passwd` from a root shell.
   };
 
@@ -55,6 +68,28 @@
   services.asusd = {
     enable = true;
   };
+  # asusd's sandbox requires this writable directory even with no declarative
+  # RON configuration. Otherwise it fails before it can create its defaults.
+  systemd.tmpfiles.rules = [ "d /etc/asusd 0755 root root -" ];
+  # Keep the lid's Slash LED bar dark, including firmware event animations.
+  environment.etc."asusd/slash.ron" = {
+    mode = "0644";
+    text = ''
+      (
+          enabled: false,
+          brightness: 0,
+          display_interval: 0,
+          display_mode: Bounce,
+          show_on_boot: false,
+          show_on_shutdown: false,
+          show_on_sleep: false,
+          show_on_battery: false,
+          show_battery_warning: false,
+          show_on_lid_closed: false,
+      )
+    '';
+  };
+  systemd.services.asusd.restartTriggers = [ config.environment.etc."asusd/slash.ron".source ];
   services.printing.enable = true;
 
   hardware.enableRedistributableFirmware = true;
