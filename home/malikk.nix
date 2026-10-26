@@ -52,6 +52,7 @@ in
     ./audio.nix
     ./hardware.nix
     ./neovim.nix
+    ./doom.nix
   ];
 
   home.username = "malikk";
@@ -287,6 +288,8 @@ in
     pyright
     ruff
     texlab
+    # Native Wayland rendering stays sharp at the laptop's 160% scale.
+    emacs-pgtk
     # Prefer GCC for shared commands such as cc and c++.
     (lib.hiPrio gcc)
     gnumake

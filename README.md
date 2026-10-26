@@ -52,6 +52,15 @@ Boot time after restoring CPU speed still needs a subsequent boot measurement.
 
 ## Desktop controls
 
+Doom Emacs uses the desktop's selected palette, JetBrainsMono Nerd Font,
+a constellation dashboard, relative line numbers, and styled Org headings.
+Palette changes from `theme-set` appear in Emacs within three seconds.
+Home Manager manages `~/.doom.d/config.el` and its custom theme; edit their
+sources in `home/doom/`. Doom's `init.el` and `packages.el` stay writable.
+Appearance changes need an Emacs restart or `M-x doom/reload`, with no
+`doom sync` required. Use `SPC f f` to open a file, `SPC p p` for a project,
+`SPC h` for help, and `SPC :` to run a command.
+
 Both sessions use Super+Return for Kitty, Super+Space for Walker, Super+Q to
 close a window, Super+F for fullscreen, Super+V for floating, and Super+L to lock.
 In Hyprland, Super+arrows focuses the neighboring window in that direction.
