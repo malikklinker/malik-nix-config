@@ -13,6 +13,7 @@
       scroll-conservatively 101)
 
 (add-to-list 'custom-theme-load-path (expand-file-name "themes/" doom-user-dir))
+(load! "languages")
 (setq-default line-spacing 0.18
               left-margin-width 1
               right-margin-width 1)

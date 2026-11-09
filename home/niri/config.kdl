@@ -52,6 +52,9 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn "desktop-volume" "down"; }
     XF86AudioMute allow-when-locked=true { spawn "desktop-volume" "mute"; }
     XF86AudioMicMute allow-when-locked=true { spawn "desktop-volume" "mic-mute"; }
+    XF86AudioPlay allow-when-locked=true { spawn "playerctl" "--player=YoutubeMusic,%any" "play-pause"; }
+    XF86AudioNext allow-when-locked=true { spawn "playerctl" "--player=YoutubeMusic,%any" "next"; }
+    XF86AudioPrev allow-when-locked=true { spawn "playerctl" "--player=YoutubeMusic,%any" "previous"; }
     XF86MonBrightnessUp allow-when-locked=true { spawn "desktop-hardware" "screen-up"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "desktop-hardware" "screen-down"; }
     XF86KbdBrightnessUp allow-when-locked=true { spawn "desktop-hardware" "keyboard-up"; }

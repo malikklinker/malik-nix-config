@@ -11,9 +11,25 @@ let
       exec python3 ${./hardware/control.py} "$@"
     '';
   };
+  networkAgent = pkgs.writeShellApplication {
+    name = "desktop-network-agent";
+    runtimeInputs = [
+      (pkgs.python3.withPackages (python: [
+        python.dbus-python
+        python.pygobject3
+      ]))
+    ];
+    text = ''
+      exec python3 ${./hardware/network_agent.py} "$@"
+    '';
+  };
 in
 {
-  home.packages = [ control ];
+  home.packages = [
+    control
+    networkAgent
+    pkgs.geteduroam
+  ];
   systemd.user.services.desktop-keyboard-theme = {
     Unit = {
       Description = "Match keyboard lighting to the desktop palette";

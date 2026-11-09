@@ -102,6 +102,13 @@
     wget
     pciutils
     usbutils
+    (python3.withPackages (python: with python; [
+      numpy
+      matplotlib
+      scipy
+      pandas
+      sympy
+    ]))
   ];
 
   system.stateVersion = "26.05";

@@ -15,6 +15,12 @@ Fish uses its bundled Scales prompt and runs Fastfetch as the greeting in
 interactive terminals, with a custom starry-sky ASCII scene.
 Noninteractive commands stay quiet.
 
+Git's global settings are writable in `~/.gitconfig`, so commands such as
+`git config --global user.name "Your Name"` work normally. Home Manager creates
+this file only when it is absent and preserves it across rebuilds. Declarative
+Git settings still come from the managed `~/.config/git/config`, including the
+default identity `Malik Klinker <malikklinker@users.noreply.github.com>`.
+
 ## Apply on this laptop
 
 The hardware configuration matches the existing **unencrypted Btrfs** root,
@@ -34,6 +40,26 @@ Reboot when ready; `boot` leaves the running desktop alone. Keep the previous
 working generation available in systemd-boot for recovery. After login, later
 updates can use `nixos-rebuild switch` with the same flake argument.
 
+## YouTube Music
+
+Pear Desktop is installed from the pinned unstable package set. Launch **Pear
+Desktop** from Walker or run `pear-desktop`, then sign in to YouTube Music.
+Its custom CSS follows `theme-set`: matching surfaces, accent-colored controls,
+subtle artwork rounding, and a compact scrollbar. Reload Pear with Ctrl+R after
+changing palettes to load the updated CSS.
+
+Synced lyrics, precise volume, and MPRIS controls are enabled initially. Playback
+keys work in Hyprland and Niri, preferring Pear over other media players.
+The in-app menu keeps settings accessible without a separate window titlebar.
+Preferences remain writable; rebuilds preserve plugin choices and account data.
+Application updates come through Nix.
+
+The initial live install uses the user Nix profile so it works without sudo.
+After the next successful `nixos-rebuild switch`, remove those temporary copies
+with `nix profile remove pear-desktop playerctl theme-set` and remove the
+temporary GC root `~/.local/state/pear-desktop-config`. Home Manager then owns
+the packages and theme configuration completely.
+
 ## Performance after a drained battery
 
 On October 21, the CPU stayed near 600 MHz under load after the battery died,
@@ -52,14 +78,34 @@ Boot time after restoring CPU speed still needs a subsequent boot measurement.
 
 ## Desktop controls
 
+Vivaldi is the default web browser, with native Wayland support and Widevine.
+Its UI uses the shared desktop palette, JetBrainsMono Nerd Font,
+square controls, and an accent line on the active tab. The stylesheet is bundled
+with the desktop theme assets and loaded automatically. After changing
+palettes with `theme-set`, fully quit and reopen Vivaldi to refresh its colors.
+LibreWolf profile data is left in place; use Vivaldi's import tools for bookmarks
+if needed. Browser styling lives in `home/vivaldi/desktop.css`.
+
 Doom Emacs uses the desktop's selected palette, JetBrainsMono Nerd Font,
 a constellation dashboard, relative line numbers, and styled Org headings.
 Palette changes from `theme-set` appear in Emacs within three seconds.
-Home Manager manages `~/.doom.d/config.el` and its custom theme; edit their
-sources in `home/doom/`. Doom's `init.el` and `packages.el` stay writable.
+Home Manager manages `~/.doom.d/init.el`, `config.el`, `languages.el`, and the
+custom theme; edit their sources in `home/doom/`. `packages.el` stays writable.
 Appearance changes need an Emacs restart or `M-x doom/reload`, with no
 `doom sync` required. Use `SPC f f` to open a file, `SPC p p` for a project,
 `SPC h` for help, and `SPC :` to run a command.
+
+Eglot provides completion, signatures, documentation, definitions, rename, and
+diagnostics for Fortran, C/C++, Python, Rust, Zig, JavaScript, and TypeScript.
+Servers use explicit Nix paths: fortls, clangd, Pyright, rust-analyzer, ZLS, and
+typescript-language-server. Zig and ZLS come from the same pinned package set.
+Corfu shows completion while typing; `gd` jumps to a definition, `K` shows
+documentation, `SPC c a` offers code actions, `SPC c r` renames a symbol, and
+`SPC c x` lists buffer diagnostics. Formatting on save remains disabled.
+For C/C++, generate `compile_commands.json` with CMake or `bear -- make` so
+clangd can find project headers. After changing Doom modules in `init.el`, run
+`~/.emacs.d/bin/doom sync` and restart Emacs. The original module list from this
+migration is saved at `~/.doom.d/init.el.before-language-servers`.
 
 Both sessions use Super+Return for Kitty, Super+Space for Walker, Super+Q to
 close a window, Super+F for fullscreen, Super+V for floating, and Super+L to lock.
@@ -91,6 +137,36 @@ controls. The screen slider controls the AMD panel (1–100%); keyboard lighting
 snaps to the hardware's four levels: Off, Low, Medium, and High. Scroll over the sun for 5%
 screen brightness steps. Screen and keyboard brightness keys work in both
 Hyprland and Niri, including while locked.
+
+Wi-Fi and Bluetooth share two compact rows at the bottom of that same laptop
+popup, keeping the bar unchanged. Use On/Off to toggle either radio; click the
+Wi-Fi or Bluetooth name to open its own themed popup in place of laptop
+controls. Back (or Escape) restores laptop controls; × dismisses the popup.
+The Wi-Fi row shows the active connection name. No manager app launches when
+opening either panel.
+
+The Wi-Fi popup lists nearby networks with signal strength. Select one to
+connect, enter a password, disconnect or forget its saved profile (with a second
+confirmation click). Saved profiles reconnect without re-entering credentials.
+Selecting an enterprise network such as eduroam also exposes PEAP/TTLS,
+inner authentication, identity, optional anonymous identity, CA certificate path
+and authentication-server domain fields. Use the values supplied by your home
+institution; the popup requires certificate and server-domain verification.
+The default CA path is the system certificate bundle. Profiles and credentials
+are saved by NetworkManager, with enterprise profiles restricted to your user;
+passwords pass to the helper through stdin, never command arguments or this repo.
+Institutions requiring client certificates, web enrolment, or other EAP methods
+need an externally provisioned profile first. `geteduroam-gui` remains installed
+for that optional setup, with institution instructions or
+[eduroam CAT](https://cat.eduroam.org/) as alternatives. Such profiles can then
+be selected in the popup.
+
+The Bluetooth popup lists saved and discovered devices, with connected devices
+first. Opening it scans for 30 seconds; Scan starts another scan. Select a device
+to pair and connect, reconnect, disconnect, or forget it. PIN entry, passkey
+display and code confirmation stay inside the popup. Only successfully paired
+devices are trusted. Closing the popup stops discovery and cancels pending
+pairing; no default system pairing agent is replaced.
 
 “Match keyboard to theme” applies the selected palette's accent as a static
 keyboard color, at login and on palette changes. It preserves the chosen
@@ -145,6 +221,12 @@ Run `ff` for Fastfetch. `nvim` starts LazyVim with Nix, Python, TeX, and
 Markdown integrations; plugins download on first use. Coursework tools include TeX Live,
 latexmk, biber, chktex, Zathura, and SymPy.
 
+## System Python
+
+System-wide `python` and `python3` include NumPy, Matplotlib, SciPy, pandas,
+and SymPy through `python3.withPackages` in `hosts/zephyrus/default.nix`.
+Add shared Python libraries there and rebuild NixOS to install them.
+
 ## Neovim development tools
 
 Language servers and formatters are installed through Nix. Fortran uses
@@ -167,8 +249,12 @@ can split identifiers into keyword fragments while a statement is incomplete.
 The Fortran parser remains available for structural features, and fortls remains
 enabled for completion, navigation, and diagnostics.
 
-Neovim notification popups and LSP progress popups are disabled. Diagnostics
-remain visible, and ordinary error messages are available through `:messages`.
+Neovim uses a quiet Emacs-style layout: plain line numbers, the desktop syntax palette,
+and a flat status line with the file path, modified marker, filetype, and position.
+Buffer tabs, indent guides, inline diagnostics, inlay hints, notification popups,
+and LSP progress popups are disabled. Shift-h/Shift-l and `[b`/`]b` still switch
+buffers. Diagnostics retain gutter signs and underlines; Space c d shows the
+message at the cursor, and ordinary errors are available through `:messages`.
 Reopen Neovim to load changes; an already running editor keeps its loaded config.
 
 ## Graphics recovery and Hyprland

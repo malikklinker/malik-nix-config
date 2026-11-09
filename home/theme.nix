@@ -11,6 +11,9 @@ let
   presets = pkgs.runCommand "desktop-theme-presets" { nativeBuildInputs = [ python ]; } ''
     python ${./theme/build_presets.py} ${pkgs.base16-schemes}/share/themes "$out" ${./theme/schemes}
     cp ${./theme/walker.css.in} "$out/walker.css.in"
+    cp ${./theme/pear.css.in} "$out/pear.css.in"
+    cp ${./theme/vivaldi.css.in} "$out/vivaldi.css.in"
+    cp ${./vivaldi/desktop.css} "$out/vivaldi-base.css"
   '';
   themeSet = pkgs.writeShellApplication {
     name = "theme-set";

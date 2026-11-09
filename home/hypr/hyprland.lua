@@ -16,6 +16,7 @@ hl.config({
     },
     input = {
         kb_layout = "us",
+        accel_profile = "flat",
         touchpad = { natural_scroll = true },
     },
     general = {
@@ -40,7 +41,13 @@ hl.animation({ leaf = "global", enabled = true, speed = 8, bezier = "snappy" })
 
 hl.bind("SUPER + Q", hl.dsp.window.close())
 hl.bind("SUPER + Return", hl.dsp.exec_cmd("session-app kitty"))
-hl.bind("SUPER + Space", hl.dsp.exec_cmd("session-app walker"))
+-- Walker already lives in its own service. Activate it after releasing the
+-- shortcut so its keyboard grab does not overlap the held Super key.
+local function openWalker()
+    hl.exec_cmd("walker")
+end
+hl.bind("SUPER + space", openWalker, { release = true })
+hl.bind("CTRL + Escape", openWalker, { release = true })
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind("SUPER + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind("SUPER + L", hl.dsp.exec_cmd("session-app swaylock"))
@@ -57,6 +64,9 @@ hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("desktop-volume up"), { locked =
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("desktop-volume down"), { locked = true, repeating = true })
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("desktop-volume mute"), { locked = true })
 hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("desktop-volume mic-mute"), { locked = true })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl --player=YoutubeMusic,%any play-pause"), { locked = true })
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl --player=YoutubeMusic,%any next"), { locked = true })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl --player=YoutubeMusic,%any previous"), { locked = true })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("desktop-hardware screen-up"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("desktop-hardware screen-down"), { locked = true, repeating = true })
 hl.bind("XF86KbdBrightnessUp", hl.dsp.exec_cmd("desktop-hardware keyboard-up"), { locked = true, repeating = true })
