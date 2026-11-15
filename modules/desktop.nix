@@ -2,9 +2,6 @@
 
 let
   graphicsPkgs = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
-  niriPackage = pkgs.niri.overrideAttrs (oldAttrs: {
-    patches = (oldAttrs.patches or [ ]) ++ [ ../patches/niri-session-environment.patch ];
-  });
 in
 
 {
@@ -16,10 +13,6 @@ in
     withUWSM = true;
   };
   programs.uwsm.package = graphicsPkgs.uwsm;
-  programs.niri = {
-    enable = true;
-    package = niriPackage;
-  };
 
   xdg.portal = {
     enable = true;
@@ -62,5 +55,13 @@ in
   programs.dconf.enable = true;
   services.udisks2.enable = true;
   services.gvfs.enable = true;
+  programs.thunar = {
+    enable = true;
+    plugins = with pkgs; [
+      thunar-archive-plugin
+      thunar-volman
+    ];
+  };
+  services.tumbler.enable = true;
   services.upower.enable = true;
 }

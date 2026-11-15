@@ -31,6 +31,8 @@ def run(command):
 def reload_apps(theme):
     if os.environ.get("DESKTOP_THEME_NO_RELOAD") == "1":
         return
+    # Helix reloads configuration and its selected theme on SIGUSR1.
+    run(["pkill", "-USR1", "-u", str(os.getuid()), "-x", r"(hx|\.hx-wrapped)"])
     # Hardware sync is optional: an unavailable ASUS daemon must not prevent
     # the rest of the desktop from changing palette.
     result = run(["desktop-hardware", "sync"])
@@ -38,7 +40,6 @@ def reload_apps(theme):
         print(result.stderr.strip(), file=sys.stderr)
     if os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
         run(["hyprctl", "reload", "config-only"])
-    # Niri watches the included palette file for changes.
     run(["makoctl", "reload"])
     run(["systemctl", "--user", "try-restart", "walker.service"])
     preference = "prefer-dark" if theme["variant"] == "dark" else "prefer-light"
@@ -298,6 +299,73 @@ def zed_theme(theme):
     }
 
 
+def helix_theme(theme):
+    """Flat UI and restrained syntax matching the shared desktop palette."""
+    c, p = theme["colors"], theme["palette"]
+    roles = {
+        "keyword": p["base0E"], "function": p["base0D"],
+        "type": p["base0A"], "constant": p["base09"], "string": p["base0B"],
+    }
+    if theme["slug"] == "midnight-blue":
+        roles.update(keyword=c["accent"], function=c["accent"],
+                     type=c["secondary"], constant=c["secondary"], string=c["cyan"])
+    styles = {key: {"fg": value} for key, value in roles.items()}
+    styles.update({
+        "attribute": {"fg": c["secondary"]},
+        "constructor": {"fg": roles["type"]},
+        "namespace": {"fg": roles["type"]},
+        "variable": {"fg": c["text"]},
+        "label": {"fg": c["accent"]},
+        "operator": {"fg": c["subtext"]},
+        "punctuation": {"fg": c["subtext"]},
+        "string.special": {"fg": c["cyan"]},
+        "constant.character.escape": {"fg": c["cyan"]},
+        "comment": {"fg": c["muted"], "modifiers": ["italic"]},
+        "ui.background": {"bg": c["background"]},
+        "ui.text": {"fg": c["text"]},
+        "ui.text.focus": {"fg": c["accent"], "modifiers": ["bold"]},
+        "ui.text.inactive": {"fg": c["muted"]},
+        "ui.linenr": {"fg": c["muted"]},
+        "ui.linenr.selected": {"fg": c["accent"]},
+        "ui.gutter": {"bg": c["background"]},
+        "ui.selection": {"bg": c["overlay"]},
+        "ui.cursor": {"fg": c["background"], "bg": c["accent"]},
+        "ui.cursor.select": {"fg": c["background"], "bg": c["secondary"]},
+        "ui.cursor.insert": {"fg": c["background"], "bg": c["green"]},
+        "ui.cursor.match": {"fg": c["secondary"], "modifiers": ["bold"]},
+        "ui.statusline": {"fg": c["text"], "bg": c["surface"]},
+        "ui.statusline.inactive": {"fg": c["muted"], "bg": c["background"]},
+        "ui.statusline.normal": {"fg": c["background"], "bg": c["accent"], "modifiers": ["bold"]},
+        "ui.statusline.insert": {"fg": c["background"], "bg": c["green"], "modifiers": ["bold"]},
+        "ui.statusline.select": {"fg": c["background"], "bg": c["secondary"], "modifiers": ["bold"]},
+        "ui.popup": {"fg": c["text"], "bg": c["surface"]},
+        "ui.help": {"fg": c["text"], "bg": c["surface"]},
+        "ui.menu": {"fg": c["text"], "bg": c["surface"]},
+        "ui.menu.selected": {"fg": c["accent"], "bg": c["overlay"]},
+        "ui.menu.scroll": {"fg": c["muted"], "bg": c["surface"]},
+        "ui.window": {"fg": c["overlay"]},
+        "ui.virtual": {"fg": c["muted"]},
+        "ui.virtual.jump-label": {"fg": c["background"], "bg": c["secondary"], "modifiers": ["bold"]},
+        "markup.heading": {"fg": c["accent"], "modifiers": ["bold"]},
+        "markup.bold": {"modifiers": ["bold"]},
+        "markup.italic": {"modifiers": ["italic"]},
+        "markup.link.url": {"fg": c["cyan"], "modifiers": ["underlined"]},
+        "markup.raw": {"fg": roles["string"]},
+        "diff.plus": {"fg": c["green"]},
+        "diff.delta": {"fg": c["yellow"]},
+        "diff.minus": {"fg": c["red"]},
+    })
+    for severity, role in {"error": "red", "warning": "yellow", "info": "blue", "hint": "muted"}.items():
+        styles[severity] = {"fg": c[role]}
+        styles[f"diagnostic.{severity}"] = {"underline": {"color": c[role], "style": "curl"}}
+    # JSON strings and inline objects are also valid TOML values here.
+    def value(item):
+        if isinstance(item, dict):
+            return "{ " + ", ".join(f"{key} = {value(val)}" for key, val in item.items()) + " }"
+        return json.dumps(item)
+    return "\n".join(f'{json.dumps(key)} = {value(style)}' for key, style in styles.items()) + "\n"
+
+
 def apply_theme(theme, state, assets):
     palette, colors = theme["palette"], theme["colors"]
     if not all(re.fullmatch(r"#[0-9a-fA-F]{6}", value) for value in palette.values()):
@@ -348,14 +416,6 @@ def apply_theme(theme, state, assets):
         + '", inactive_border = "'
         + border("overlay")
         + '" }\n',
-    )
-    atomic_write(
-        state / "niri.kdl",
-        'layout { focus-ring { width 2; active-color "'
-        + colors["accent"]
-        + '"; inactive-color "'
-        + colors["overlay"]
-        + '"; }; }\n',
     )
     css = (assets / "walker.css.in").read_text()
     for role, value in colors.items():
@@ -417,7 +477,10 @@ def apply_theme(theme, state, assets):
         )
         + "\n"
     )
-    atomic_write(state / "gtk3.css", gtk_css)
+    thunar_css = (assets / "thunar.css.in").read_text()
+    for role, value in colors.items():
+        thunar_css = thunar_css.replace("@" + role.upper() + "@", value)
+    atomic_write(state / "gtk3.css", gtk_css + "\n" + thunar_css)
     variables = "\n".join(
         f"  --{name.replace('_', '-')}: {colors[role]};"
         for name, role in gtk_roles.items()
@@ -425,6 +488,7 @@ def apply_theme(theme, state, assets):
     )
     atomic_write(state / "gtk4.css", gtk_css + ":root {\n" + variables + "\n}\n")
     atomic_write(state / "zed.json", json.dumps(zed_theme(theme), indent=2) + "\n")
+    atomic_write(state / "helix.toml", helix_theme(theme))
     # Publish the palette last so Quickshell and Neovim see a completed update.
     atomic_write(state / "theme.json", json.dumps(theme) + "\n")
     reload_apps(theme)

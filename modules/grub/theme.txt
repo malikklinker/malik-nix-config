@@ -1,0 +1,68 @@
+# Midnight Blue: match the desktop palette and mountain wallpaper.
+desktop-image: "background.png"
+desktop-image-scale-method: "crop"
+desktop-color: "#090c14"
+title-text: ""
+message-font: "JetBrains Mono Regular 18"
+message-color: "#c5cbd6"
+message-bg-color: "#090c14"
+terminal-font: "JetBrains Mono Regular 18"
+
++ label {
+  left = 12%
+  top = 13%
+  width = 76%
+  height = 50
+  text = "Z E P H Y R U S"
+  font = "JetBrains Mono Regular 36"
+  color = "#8aafd0"
+}
+
++ label {
+  left = 12%
+  top = 13%+60
+  width = 76%
+  height = 28
+  text = "N I X O S   /   M I D N I G H T   B L U E"
+  font = "JetBrains Mono Regular 18"
+  color = "#ada0d5"
+}
+
++ boot_menu {
+  left = 12%
+  top = 32%
+  width = 76%
+  height = 38%
+  item_font = "JetBrains Mono Regular 24"
+  item_color = "#8a98aa"
+  selected_item_font = "JetBrains Mono Regular 24"
+  selected_item_color = "#ecf0f6"
+  item_height = 44
+  item_padding = 8
+  item_spacing = 6
+  icon_width = 0
+  icon_height = 0
+  item_icon_space = 0
+  scrollbar = false
+}
+
++ label {
+  id = "__timeout__"
+  left = 12%
+  top = 79%
+  width = 76%
+  height = 28
+  text = "Starting in %d seconds"
+  font = "JetBrains Mono Regular 18"
+  color = "#8aafd0"
+}
+
++ label {
+  left = 12%
+  top = 88%
+  width = 76%
+  height = 28
+  text = "Up / Down  select    Enter  boot    e  edit    c  console"
+  font = "JetBrains Mono Regular 18"
+  color = "#c5cbd6"
+}

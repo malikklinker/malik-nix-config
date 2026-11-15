@@ -1,0 +1,12 @@
+[SddmGreeterTheme]
+Name=Midnight Blue
+Description=Midnight mountains, quiet typography, and a blue horizon.
+Author=Malik
+License=MIT
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=midnight-blue
+Theme-API=2.0
+QtVersion=6

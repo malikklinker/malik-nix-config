@@ -1,13 +1,17 @@
 # NixOS Zephyrus configuration
 
-SDDM with KWin Wayland and Catppuccin Mocha (mauve accents) is the default
-login screen. Hyprland (UWSM-managed) is the default desktop session; Niri
-remains selectable.
+SDDM with KWin Wayland and a custom Midnight Blue theme is the default
+login screen. Hyprland (UWSM-managed) is the desktop session.
 Session remembering is disabled. The former `zephyrus-sddm` output is an alias
 for the main `zephyrus` configuration.
 
-The Catppuccin theme is installed with SDDM's Qt SVG and virtual keyboard
-dependencies. The greeter uses JetBrainsMono Nerd Font at size 12.
+The greeter matches GRUB's Midnight Blue mountain backdrop, with a large clock,
+blue and lavender accents, and a translucent sign-in panel. JetBrains Mono fonts
+are bundled with the theme. Password entry is focused initially; Enter signs in,
+Escape clears the password, and Tab moves between controls. The session picker
+offers the installed Hyprland session entries. Caps Lock and failed authentication are shown in place;
+restart and power-off buttons ask for confirmation. Theme sources live in
+`modules/sddm/`, packaged by `modules/greeter-sddm.nix`.
 
 Fish is Malik's login shell, with Home Manager supplying its aliases and setup.
 New logins and terminals use Fish after the system configuration is applied.
@@ -37,8 +41,114 @@ sudo nixos-rebuild boot --flake path:/home/malikk/malik-nix-config#zephyrus
 
 The explicit `path:` includes new files even before they are added to Git.
 Reboot when ready; `boot` leaves the running desktop alone. Keep the previous
-working generation available in systemd-boot for recovery. After login, later
+working generation available in the boot menu for recovery. After login, later
 updates can use `nixos-rebuild switch` with the same flake argument.
+
+## Boot menu
+
+GRUB uses a custom Midnight Blue theme with the desktop's mountain wallpaper,
+JetBrains Mono, and blue/lavender accents. The menu stays visible for five
+seconds; any navigation key interrupts the countdown. Older NixOS generations
+are available in the generation submenu (up to ten retained menu entries).
+The theme lives in `modules/grub/theme.txt`; bootloader settings and font
+generation live in `modules/bootloader.nix`.
+
+The next `nixos-rebuild boot` installs GRUB as the EFI bootloader. The existing
+systemd-boot EFI executable and its entries stay on the EFI partition; select
+**Previous systemd-boot menu** in GRUB to use them, or select **Linux Boot
+Manager** from the laptop's firmware boot menu if GRUB itself fails to open.
+These existing entries are a migration fallback and are not updated by future
+GRUB rebuilds. **UEFI firmware settings** opens the firmware setup screen.
+The boot menu palette is fixed at build time; `theme-set` changes the desktop.
+
+## OS updates
+
+Open Quickshell's **power menu → OS Updates…**, launch **OS Updates** from Walker,
+or run `os-update`. **Apply local changes** builds this
+checkout with its existing package pins, including new and uncommitted files.
+**Prepare OS update** refreshes all flake inputs in a separate snapshot before
+building. The live log shows each phase and a package comparison with the booted
+system. Neither action installs anything by itself.
+
+After reviewing the build, select **Install for next boot** and authenticate in
+the administrator dialog. Installation uses the already-built snapshot; it does
+not restart the current desktop or display manager. The updater then asks whether
+to restart now or later. Save your work before accepting. Older boot generations
+remain available in GRUB; a failed bootloader installation attempts to restore
+the previous boot profile and bootloader configuration.
+
+Successful input updates copy the new `flake.lock` back into this checkout only
+if its original lock has not changed, with a backup at
+`~/.local/state/os-update/flake.lock.before-update`. Builds, their GC roots,
+prepared locks, and the log are kept under `~/.local/state/os-update/`; the latest
+candidate can be installed after reopening the app. A failed build leaves the
+checkout's pins and previously prepared candidate intact. These are manual
+updates; there is no background schedule or automatic reboot.
+
+**Preview login screen** opens the installed SDDM theme in test mode; close that
+window to return to your desktop. SDDM loads the theme through an immutable store
+path so new revisions cannot reuse bytecode cached for the previous revision's
+`/run/current-system` URL. This matters because Nix store files have normalized
+timestamps, which can otherwise let Qt display old QML after a rebuild.
+
+The updater is initially available through the user Nix profile. After booting
+the generation that installs it through Home Manager, remove that temporary copy
+with `nix profile remove os-update`. Configuration lives in `home/updates.nix`,
+with the application and failure-recovery checks in `home/updates/`.
+
+## Stable system, current user tools
+
+`packages/user.nix` is the central list of packages that follow the locked
+`nixos-unstable` input. Removing a name from that list falls back to stable.
+The selection is passed explicitly to Home Manager and the login shell/scientific
+Python environment; it does not override the system's dependency graph.
+
+| Track unstable | Keep stable |
+| --- | --- |
+| Vivaldi, Zed, Helix, Neovim, Kitty, Zoom, Pear, Zathura, Prism Launcher | Kernel 6.18, NVIDIA, Mesa (64/32-bit), firmware |
+| Quickshell, Walker + Elephant, Git, Codex, Fastfetch, CLI search tools | SDDM + KWin, GRUB, screen locker; Fish for completion-generator compatibility |
+| GCC/GFortran, Clang/clangd, Rust/Cargo/Clippy/rustfmt/rust-analyzer + Rust sources, Zig + ZLS | PipeWire/WirePlumber, NetworkManager, Bluetooth, power/hibernate services, system Python used by service helpers |
+| Node.js, scientific Python + NumPy/SciPy/pandas/Matplotlib/SymPy, CMake/Ninja, language servers and formatters | TeX Live distribution and document tooling; `texlab` itself follows unstable |
+
+Hyprland, its portal, and UWSM retain their existing matched unstable packages.
+Compiler companions and the scientific Python environment come from the same
+input so their versions and native dependencies stay aligned. Stable drivers
+remain usable by newer user applications; system-wide Mesa is not replaced.
+
+**Prepare OS update** refreshes both inputs in a snapshot. Switching a package to
+unstable alone uses the already locked revision; it does not fetch a newer pin.
+Use **Apply local changes** to install a policy change with the current pins.
+Review temporary user-profile installs after the system generation is active:
+`type -a zeditor hx` and `nix profile list` reveal copies that can shadow Home
+Manager's packages. Remove the temporary `zed-editor` and `helix` profile entries
+after their managed replacements are installed.
+
+## File manager
+
+Thunar is the default folder handler. Open it from Walker, run `thunar`, or press
+**Super+E** in Hyprland. GVfs provides trash and remote filesystem support;
+Tumbler generates thumbnails. The archive plugin uses File Roller to create and
+extract archives, and the volume manager handles removable media.
+
+Thunar follows `theme-set`, with a dark sidebar, subdued selections, rounded
+toolbar buttons, and Papirus Dark icons. The layout uses breadcrumbs, a compact
+icon grid, and a menu button instead of the menu bar (Alt reveals it).
+
+The initial live install uses the user Nix profile. After applying the system
+configuration, remove those temporary copies with
+`nix profile remove thunar-with-plugins file-roller tumbler papirus-icon-theme theme-set`.
+
+## Zoom
+
+Zoom uses the pinned unstable package set for Linux dark-mode support (7.2+).
+It is included in Home Manager. Launch **Zoom Workplace** from Walker or run
+`zoom`; meeting links can open the desktop client through its `zoommtg` handler.
+PipeWire and the Hyprland desktop portal provide audio and screen sharing.
+Before a meeting, use Zoom's audio and video settings to check your devices.
+
+The initial live install uses the user Nix profile so it is available without a
+system rebuild. After a successful `nixos-rebuild switch` installs the Home
+Manager package, remove the duplicate with `nix profile remove zoom`.
 
 ## YouTube Music
 
@@ -49,7 +159,7 @@ subtle artwork rounding, and a compact scrollbar. Reload Pear with Ctrl+R after
 changing palettes to load the updated CSS.
 
 Synced lyrics, precise volume, and MPRIS controls are enabled initially. Playback
-keys work in Hyprland and Niri, preferring Pear over other media players.
+keys work in Hyprland, preferring Pear over other media players.
 The in-app menu keeps settings accessible without a separate window titlebar.
 Preferences remain writable; rebuilds preserve plugin choices and account data.
 Application updates come through Nix.
@@ -61,6 +171,18 @@ temporary GC root `~/.local/state/pear-desktop-config`. Home Manager then owns
 the packages and theme configuration completely.
 
 ## Performance after a drained battery
+
+UPower requests hibernation at 10% while discharging. Desktop notifications at
+25% and 15% stay visible until dismissed; a final warning appears at 10%.
+Warnings reset when AC power returns or the battery recovers above 25%.
+The warning service runs in both desktop sessions; UPower performs the critical
+action system-wide, even without a logged-in desktop.
+
+Resume uses the existing 33.5 GiB swap partition, with NVIDIA video memory
+preservation enabled. Hibernation writes the image then powers off. After
+applying this configuration, reboot once to load its resume configuration.
+Save work and test `systemctl hibernate` on AC power before relying on automatic
+hibernation; a successful build cannot verify a physical hibernate/resume cycle.
 
 On October 21, the CPU stayed near 600 MHz under load after the battery died,
 including during a 2 minute 6 second boot. Temperatures were cool and memory
@@ -86,57 +208,32 @@ palettes with `theme-set`, fully quit and reopen Vivaldi to refresh its colors.
 LibreWolf profile data is left in place; use Vivaldi's import tools for bookmarks
 if needed. Browser styling lives in `home/vivaldi/desktop.css`.
 
-Doom Emacs uses the desktop's selected palette, JetBrainsMono Nerd Font,
-a constellation dashboard, relative line numbers, and styled Org headings.
-Palette changes from `theme-set` appear in Emacs within three seconds.
-Home Manager manages `~/.doom.d/init.el`, `config.el`, `languages.el`, and the
-custom theme; edit their sources in `home/doom/`. `packages.el` stays writable.
-Appearance changes need an Emacs restart or `M-x doom/reload`, with no
-`doom sync` required. Use `SPC f f` to open a file, `SPC p p` for a project,
-`SPC h` for help, and `SPC :` to run a command.
-
-Eglot provides completion, signatures, documentation, definitions, rename, and
-diagnostics for Fortran, C/C++, Python, Rust, Zig, JavaScript, and TypeScript.
-Servers use explicit Nix paths: fortls, clangd, Pyright, rust-analyzer, ZLS, and
-typescript-language-server. Zig and ZLS come from the same pinned package set.
-Corfu shows completion while typing; `gd` jumps to a definition, `K` shows
-documentation, `SPC c a` offers code actions, `SPC c r` renames a symbol, and
-`SPC c x` lists buffer diagnostics. Formatting on save remains disabled.
-For C/C++, generate `compile_commands.json` with CMake or `bear -- make` so
-clangd can find project headers. After changing Doom modules in `init.el`, run
-`~/.emacs.d/bin/doom sync` and restart Emacs. The original module list from this
-migration is saved at `~/.doom.d/init.el.before-language-servers`.
-
-Both sessions use Super+Return for Kitty, Super+Space for Walker, Super+Q to
+Hyprland uses Super+Return for Kitty, Super+Space for Walker, Super+Q to
 close a window, Super+F for fullscreen, Super+V for floating, and Super+L to lock.
 In Hyprland, Super+arrows focuses the neighboring window in that direction.
 Super+Shift+S selects a screenshot region and copies it to the clipboard.
-In Niri, use Super+arrows to focus, Super+Shift+arrows to move, Super+1–5 for
-workspaces, Super+Shift+1–5 to move columns between workspaces, Print for a
-screenshot, Super+Shift+E to log out, and Super+Shift+/ for the shortcut overlay.
-Niri workspaces are dynamic: unused higher indices select the last empty one.
 
 Walker supports app search, `>` for commands, `/` for files, and `=` for maths.
 Elephant supplies its providers. The Quickshell panel, notifications, PolicyKit
-agent, and NetworkManager applet are available across both sessions. Run `nmtui`
+agent, and NetworkManager applet are available in Hyprland. Run `nmtui`
 for Wi-Fi or `nm-connection-editor` for connection profiles, and
-`blueman-manager` for Bluetooth. Niri uses xwayland-satellite for X11 apps.
+`blueman-manager` for Bluetooth.
 The configuration does not currently provide automatic idle locking.
 
 The Quickshell panel has clickable workspace numbers: Hyprland keeps 1–5
-visible, while Niri shows the focused output's dynamic workspaces. The current
+visible. The current
 workspace is highlighted, and occupied workspaces have brighter numbers.
 Scroll over the volume indicator to adjust it in 5% steps (up to 100%), or click
 it to toggle mute. Volume follows the default audio output. The keyboard volume
 keys use the same 5% steps; volume-up also unmutes. The microphone mute key
-toggles the default input. These keys work in Hyprland and Niri, including while
+toggles the default input. These keys work in Hyprland, including while
 locked. The bar keeps the percentage visible when muted (with a red mute icon).
 
 Click the sun/brightness percentage beside the volume indicator for laptop
 controls. The screen slider controls the AMD panel (1–100%); keyboard lighting
 snaps to the hardware's four levels: Off, Low, Medium, and High. Scroll over the sun for 5%
-screen brightness steps. Screen and keyboard brightness keys work in both
-Hyprland and Niri, including while locked.
+screen brightness steps. Screen and keyboard brightness keys work in
+Hyprland, including while locked.
 
 Wi-Fi and Bluetooth share two compact rows at the bottom of that same laptop
 popup, keeping the bar unchanged. Use On/Off to toggle either radio; click the
@@ -197,7 +294,7 @@ uses near-black surfaces with muted blue and lavender accents. `theme-set --curr
 
 Tinty applies the bundled Base16 palettes offline; switching needs no rebuild
 after the initial installation. The selection survives login and rebuilds.
-Quickshell, Hyprland/Niri, Kitty, Walker, Mako, and open Neovim windows follow
+Quickshell, Hyprland, Kitty, Walker, Mako, and open Neovim windows follow
 the palette. Neovim also applies the palette to tabs, floating menus, and the
 status line. Syntax colors share defaults across legacy highlighting, Tree-sitter,
 and LSP semantic tokens. Midnight Blue uses blue keywords/functions, lavender
@@ -205,9 +302,9 @@ types/constants, cyan strings, and neutral identifiers. Red, green, and yellow
 remain available for diagnostics, Git changes, and mode indicators.
 Fastfetch uses the terminal's colors. GTK 3/4 receive palette CSS
 and the light/dark preference; some GTK applications need reopening to pick up
-changes. SDDM retains its separately configured Catppuccin Mocha login theme.
+changes. SDDM retains its separately configured Midnight Blue login theme.
 Windows, Walker, Mako notifications, and Quickshell controls use square corners.
-Hyprland uses 3 px inner and 6 px outer gaps; Niri uses 6 px gaps.
+Hyprland uses 3 px inner and 6 px outer gaps.
 Hyprland’s background logo and splash text, including Hyprpaper’s splash,
 are disabled.
 Hyprland uses the standard Adwaita arrow cursor at size 24. Hyprpaper displays
@@ -224,8 +321,35 @@ latexmk, biber, chktex, Zathura, and SymPy.
 ## System Python
 
 System-wide `python` and `python3` include NumPy, Matplotlib, SciPy, pandas,
-and SymPy through `python3.withPackages` in `hosts/zephyrus/default.nix`.
+and SymPy through `userPkgs.python3.withPackages` in `hosts/zephyrus/default.nix`.
+This scientific environment follows unstable as one matching Python/package set;
+system service helpers retain their stable Python runtimes.
 Add shared Python libraries there and rebuild NixOS to install them.
+
+## Helix
+
+Run `hx .` to open the project picker, `hx file` to edit, or `hx --tutor`
+for Helix's interactive introduction. The editor follows the shared desktop
+palette, including Midnight Blue's blue/lavender syntax and cyan strings.
+`theme-set` refreshes open Helix windows automatically. Appearance uses a flat
+status line with mode colors, relative line numbers, soft wrapping, and subtle
+indent guides. Warnings and errors appear beneath the cursor's line;
+buffer tabs and inlay hints are disabled.
+
+Nix, Python (Pyright + Ruff), Fortran, C/C++, Rust, Lua, LaTeX, Markdown,
+and TOML use the Nix-managed language tools. Format on save is disabled;
+use `:format` when wanted. Space f opens files, Space b switches buffers,
+Space / searches the project, Space k shows hover documentation, Space a
+opens code actions, Space w saves, and Space q quits. Helix selects text before
+acting on it; use `hx --tutor` to learn its editing model.
+Settings live in `home/helix.nix`; palette generation lives in
+`home/theme/theme_set.py`.
+
+The initial live installation uses the user Nix profile. After a successful
+system switch installs the Home Manager configuration, remove the duplicate
+package with `nix profile remove helix` and the temporary configuration GC root
+`~/.local/state/helix-desktop-config`. The temporary `theme-set` profile package
+can also be removed once Home Manager supplies the updated theme integration.
 
 ## Neovim development tools
 

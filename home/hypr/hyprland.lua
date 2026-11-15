@@ -41,6 +41,7 @@ hl.animation({ leaf = "global", enabled = true, speed = 8, bezier = "snappy" })
 
 hl.bind("SUPER + Q", hl.dsp.window.close())
 hl.bind("SUPER + Return", hl.dsp.exec_cmd("session-app kitty"))
+hl.bind("SUPER + E", hl.dsp.exec_cmd("session-app thunar"))
 -- Walker already lives in its own service. Activate it after releasing the
 -- shortcut so its keyboard grab does not overlap the held Super key.
 local function openWalker()

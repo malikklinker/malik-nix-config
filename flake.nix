@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
-    # Fast-moving desktop packages and Codex CLI come from this package set.
+    # User apps and development tools follow packages/user.nix; NixOS stays stable.
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {

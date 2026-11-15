@@ -1,0 +1,8 @@
+[
+  { "label": "Fortran: Check current file (standalone)", "command": "@taskRunner@", "args": ["check", "$ZED_FILE"], "save": "current" },
+  { "label": "Fortran: Build current file (standalone, debug)", "command": "@taskRunner@", "args": ["build", "$ZED_FILE"], "save": "current" },
+  { "label": "Fortran: Run current file (standalone)", "command": "@taskRunner@", "args": ["run", "$ZED_FILE"], "save": "current", "tags": ["fortran-program"] },
+  { "label": "Fortran: Build project (fpm / Make / CMake)", "command": "@taskRunner@", "args": ["project-build", "$ZED_FILE"], "save": "all" },
+  { "label": "Fortran: Run project (fpm)", "command": "@taskRunner@", "args": ["project-run", "$ZED_FILE"], "save": "all" },
+  { "label": "Fortran: Test project (fpm)", "command": "@taskRunner@", "args": ["project-test", "$ZED_FILE"], "save": "all" }
+]

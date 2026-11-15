@@ -11,4 +11,3 @@ WifiPanel 1.0 WifiPanel.qml
 BluetoothPanel 1.0 BluetoothPanel.qml
 WorkspaceButton 1.0 WorkspaceButton.qml
 HyprlandWorkspaces 1.0 HyprlandWorkspaces.qml
-NiriWorkspaces 1.0 NiriWorkspaces.qml

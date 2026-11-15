@@ -1,0 +1,97 @@
+/* Thunar follows the desktop palette; other GTK applications keep their layout. */
+window.thunar {
+  background-color: @BACKGROUND@;
+  color: @TEXT@;
+}
+
+window.thunar toolbar {
+  background: @SURFACE@;
+  border: none;
+  border-bottom: 1px solid @OVERLAY@;
+  padding: 8px;
+}
+
+window.thunar toolbar button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  box-shadow: none;
+  color: @SUBTEXT@;
+  padding: 5px 7px;
+}
+
+window.thunar toolbar button:hover,
+window.thunar toolbar button:checked {
+  background: @OVERLAY@;
+  color: @TEXT@;
+}
+
+window.thunar toolbar entry {
+  background: @BACKGROUND@;
+  color: @TEXT@;
+  border: 1px solid @OVERLAY@;
+  border-radius: 7px;
+  box-shadow: none;
+}
+
+window.thunar .sidebar,
+window.thunar .sidebar treeview {
+  background-color: @SURFACE@;
+  color: @SUBTEXT@;
+  border: none;
+}
+
+window.thunar .sidebar treeview {
+  -GtkTreeView-vertical-separator: 10;
+  -GtkTreeView-horizontal-separator: 8;
+}
+
+window.thunar .standard-view .view {
+  background-color: @BACKGROUND@;
+  color: @TEXT@;
+}
+
+window.thunar .view:selected {
+  background-color: @OVERLAY@;
+  color: @TEXT@;
+  border-radius: 6px;
+}
+
+window.thunar .sidebar .view:selected {
+  color: @ACCENT@;
+}
+
+window.thunar statusbar {
+  background: @SURFACE@;
+  border-top: 1px solid @OVERLAY@;
+  color: @SUBTEXT@;
+  padding: 5px 10px;
+  font-size: 0.9em;
+}
+
+window.thunar notebook > header {
+  background: @SURFACE@;
+  border-bottom: 1px solid @OVERLAY@;
+}
+
+window.thunar notebook > header tab {
+  padding: 8px 14px;
+  color: @SUBTEXT@;
+}
+
+window.thunar notebook > header tab:checked {
+  color: @ACCENT@;
+  box-shadow: inset 0 -2px @ACCENT@;
+}
+
+window.thunar scrollbar slider {
+  background: @OVERLAY@;
+  border: none;
+  border-radius: 8px;
+  min-width: 5px;
+  min-height: 5px;
+}
+
+window.thunar scrollbar slider:hover {
+  background: @MUTED@;
+}

@@ -13,6 +13,7 @@ let
     cp ${./theme/walker.css.in} "$out/walker.css.in"
     cp ${./theme/pear.css.in} "$out/pear.css.in"
     cp ${./theme/vivaldi.css.in} "$out/vivaldi.css.in"
+    cp ${./theme/thunar.css.in} "$out/thunar.css.in"
     cp ${./vivaldi/desktop.css} "$out/vivaldi-base.css"
   '';
   themeSet = pkgs.writeShellApplication {
@@ -106,8 +107,19 @@ in
   };
   gtk = {
     enable = true;
+    theme.name = "Adwaita-dark";
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    gtk3.extraConfig.gtk-application-prefer-dark-theme = true;
     gtk3.extraCss = ''@import url("file://${state}/gtk3.css");'';
     gtk4.extraCss = ''@import url("file://${state}/gtk4.css");'';
+  };
+  # Apps using the desktop portal should start dark even before theme-set runs.
+  dconf.settings."org/gnome/desktop/interface" = {
+    color-scheme = "prefer-dark";
+    gtk-theme = "Adwaita-dark";
   };
   programs.kitty.extraConfig = "include ${state}/kitty.conf";
   services.mako.settings.include = "${state}/mako.conf";

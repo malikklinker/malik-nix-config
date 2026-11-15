@@ -1,0 +1,70 @@
+/* Shared desktop palette, loaded by Pear's native custom-theme support. */
+:root {
+  color-scheme: @VARIANT@;
+  --ytmusic-color-black1: @SURFACE@ !important;
+  --ytmusic-color-black2: @BACKGROUND@ !important;
+  --ytmusic-color-black3: @BACKGROUND@ !important;
+  --ytmusic-color-black4: @SURFACE@ !important;
+  --ytmusic-color-blackpure: @BACKGROUND@ !important;
+  --ytmusic-color-white1: @TEXT@ !important;
+  --ytmusic-color-white2: @SUBTEXT@ !important;
+  --ytmusic-color-white3: @SUBTEXT@ !important;
+  --ytmusic-color-text-primary: @TEXT@ !important;
+  --ytmusic-color-text-secondary: @SUBTEXT@ !important;
+  --yt-spec-base-background: @BACKGROUND@ !important;
+  --yt-spec-raised-background: @SURFACE@ !important;
+  --yt-spec-menu-background: @SURFACE@ !important;
+  --yt-spec-text-primary: @TEXT@ !important;
+  --yt-spec-text-secondary: @SUBTEXT@ !important;
+  --yt-spec-call-to-action: @ACCENT@ !important;
+  --ytmusic-color-light1: @ACCENT@ !important;
+  --ytmusic-color-light2: @ACCENT@ !important;
+  --paper-progress-active-color: @ACCENT@ !important;
+  --paper-slider-active-color: @ACCENT@ !important;
+  --paper-slider-knob-color: @ACCENT@ !important;
+  --paper-tabs-selection-bar-color: @ACCENT@ !important;
+  --ytmusic-search-background: @SURFACE@ !important;
+  --paper-dialog-background-color: @SURFACE@ !important;
+}
+
+html, body, ytmusic-app, #layout, #player-page {
+  background: @BACKGROUND@ !important;
+  color: @TEXT@ !important;
+  font-family: "Inter", "Noto Sans", sans-serif;
+}
+
+#nav-bar-background, #guide-wrapper, #mini-guide-background,
+ytmusic-player-bar, #player-bar-background {
+  background: @SURFACE@ !important;
+}
+
+ytmusic-player-bar {
+  border-top: 1px solid @OVERLAY@;
+}
+
+ytmusic-search-box {
+  border-radius: 8px;
+  --ytmusic-search-background: @SURFACE@;
+}
+
+ytmusic-two-row-item-renderer #image,
+ytmusic-player-bar .thumbnail,
+ytmusic-player #song-image {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+ytmusic-guide-entry-renderer[active],
+ytmusic-responsive-list-item-renderer:hover {
+  background: @OVERLAY@ !important;
+  border-radius: 6px;
+}
+
+tp-yt-paper-tab.iron-selected, .ytmusic-player-bar.title {
+  color: @ACCENT@ !important;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: @BACKGROUND@; }
+::-webkit-scrollbar-thumb { background: @OVERLAY@; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: @ACCENT@; }
