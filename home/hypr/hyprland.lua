@@ -17,7 +17,11 @@ hl.config({
     input = {
         kb_layout = "us",
         accel_profile = "flat",
-        touchpad = { natural_scroll = true },
+        touchpad = {
+            natural_scroll = true,
+            disable_while_typing = true,
+            tap_to_click = false,
+        },
     },
     general = {
         border_size = 2,

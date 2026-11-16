@@ -64,13 +64,6 @@ in
         file-picker.hidden = false;
         soft-wrap.enable = true;
       };
-      # Practice leaving insert mode before navigating.
-      keys.insert = {
-        left = "no_op";
-        down = "no_op";
-        up = "no_op";
-        right = "no_op";
-      };
       keys.normal = {
         esc = [
           "collapse_selection"
