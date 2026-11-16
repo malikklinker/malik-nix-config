@@ -1,5 +1,19 @@
 # NixOS Zephyrus configuration
 
+Personal NixOS and Home Manager configuration for an ASUS Zephyrus laptop:
+Hyprland, a Quickshell panel, shared desktop palettes, and a custom SDDM/GRUB
+theme, plus development tools and laptop controls.
+
+**Using this on another machine:** this is a working personal configuration,
+not a general installer. Replace the hardware configuration and review the
+disk UUIDs in `hosts/zephyrus/hardware-configuration.nix`, `modules/power.nix`,
+and `modules/bootloader.nix` before applying it. Adapt the username, home paths,
+GPU configuration, and timezone to your system. The disk layout is unencrypted;
+do not copy it as an encryption setup. Never put passwords, tokens, Wi-Fi
+profiles, or private keys in this checkout: flake sources can enter the Nix
+store. There is no repository-wide license file; individual license declarations
+and the licenses of upstream packages and assets still apply.
+
 SDDM with KWin Wayland and a custom Midnight Blue theme is the default
 login screen. Hyprland (UWSM-managed) is the desktop session.
 Session remembering is disabled. The former `zephyrus-sddm` output is an alias
@@ -23,7 +37,7 @@ Git's global settings are writable in `~/.gitconfig`, so commands such as
 `git config --global user.name "Your Name"` work normally. Home Manager creates
 this file only when it is absent and preserves it across rebuilds. Declarative
 Git settings still come from the managed `~/.config/git/config`, including the
-default identity `Malik Klinker <malikklinker@users.noreply.github.com>`.
+default identity `Malik Klinker <235598266+malikklinker@users.noreply.github.com>`.
 
 ## Apply on this laptop
 

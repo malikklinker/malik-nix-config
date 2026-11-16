@@ -92,7 +92,7 @@ in
     package = userPkgs.git;
     settings.user = {
       name = "Malik Klinker";
-      email = "malikklinker@users.noreply.github.com";
+      email = "235598266+malikklinker@users.noreply.github.com";
     };
   };
   # Git otherwise tries to write global settings to Home Manager's store symlink.
