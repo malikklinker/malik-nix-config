@@ -1,7 +1,9 @@
 {
   config,
   inputs,
+  lib,
   pkgs,
+  userPkgs,
   ...
 }:
 
@@ -49,9 +51,14 @@ in
 {
   imports = [
     ./theme.nix
+    ./music.nix
+    ./vivaldi.nix
     ./audio.nix
     ./hardware.nix
+    ./updates.nix
     ./neovim.nix
+    ./helix.nix
+    ./zed.nix
   ];
 
   home.username = "malikk";
@@ -59,16 +66,58 @@ in
   home.stateVersion = "26.05";
 
   programs.home-manager.enable = true;
-  programs.git.enable = true;
+  xfconf = {
+    enable = true;
+    settings.thunar = {
+      last-view = "ThunarIconView";
+      last-icon-view-zoom-level = "THUNAR_ZOOM_LEVEL_75_PERCENT";
+      last-location-bar = "ThunarLocationButtons";
+      last-side-pane = "THUNAR_SIDEPANE_TYPE_SHORTCUTS";
+      last-separator-position = 180;
+      last-menubar-visible = false;
+      last-statusbar-visible = true;
+      last-toolbar-items = "back:1,forward:1,open-parent:1,location-bar:1,search:1,view-switcher:1,menu:1";
+      shortcuts-icon-size = "THUNAR_ICON_SIZE_24";
+      misc-thumbnail-mode = "THUNAR_THUMBNAIL_MODE_ONLY_LOCAL";
+    };
+  };
+  xdg.mimeApps.enable = true;
+  xdg.mimeApps.defaultApplications = {
+    "inode/directory" = [ "thunar.desktop" ];
+    "x-scheme-handler/zoommtg" = [ "Zoom.desktop" ];
+    "x-scheme-handler/zoomus" = [ "Zoom.desktop" ];
+  };
+  programs.git = {
+    enable = true;
+    package = userPkgs.git;
+    settings.user = {
+      name = "Malik Klinker";
+      email = "235598266+malikklinker@users.noreply.github.com";
+    };
+  };
+  # Git otherwise tries to write global settings to Home Manager's store symlink.
+  # It reads both files, but prefers ~/.gitconfig for writes when it exists.
+  home.activation.writableGitConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ ! -e "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ]; then
+      run ${pkgs.coreutils}/bin/install -m 600 /dev/null "$HOME/.gitconfig"
+    fi
+  '';
   programs.fish.enable = true;
+  programs.fish.package = userPkgs.fish;
   programs.fish.interactiveShellInit = ''
-    source ${pkgs.fish}/share/fish/prompts/scales.fish
+    source ${userPkgs.fish}/share/fish/prompts/scales.fish
   '';
   programs.fish.functions.fish_greeting = ''
     if test -t 1; and test "$TERM" != dumb
-      ${pkgs.fastfetch}/bin/fastfetch
+      ${userPkgs.fastfetch}/bin/fastfetch
     end
   '';
+
+  programs.zoxide = {
+    enable = true;
+    package = userPkgs.zoxide;
+    enableFishIntegration = true;
+  };
 
   programs.codexDesktopLinux.enable = true;
 
@@ -109,9 +158,6 @@ in
     "XDG_CURRENT_DESKTOP=Hyprland"
   ];
 
-  xdg.configFile."niri/config.kdl".text =
-    builtins.replaceStrings [ "@themePath@" ] [ "${config.xdg.stateHome}/desktop-theme/niri.kdl" ]
-      (builtins.readFile ./niri/config.kdl);
   programs.swaylock.enable = true;
   services.mako.enable = true;
   services.polkit-gnome.enable = true;
@@ -130,6 +176,7 @@ in
 
   programs.kitty = {
     enable = true;
+    package = userPkgs.kitty;
     font = {
       name = "JetBrainsMono Nerd Font";
       size = 12;
@@ -147,6 +194,7 @@ in
 
   programs.fastfetch = {
     enable = true;
+    package = userPkgs.fastfetch;
     settings = {
       logo = {
         type = "data";
@@ -194,6 +242,7 @@ in
 
   programs.quickshell = {
     enable = true;
+    package = userPkgs.quickshell;
     activeConfig = "mocha";
     configs.mocha = ./quickshell;
     systemd = {
@@ -203,6 +252,7 @@ in
   };
 
   services.elephant.enable = true;
+  services.elephant.package = userPkgs.elephant;
 
   # Wait for the compositor to publish its display environment before starting
   # launchers, and stop them on logout so the next session gets fresh values.
@@ -211,15 +261,40 @@ in
       After = [ "graphical-session.target" ];
       PartOf = [ "graphical-session.target" ];
     };
-    walker.Unit = {
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
+    walker = {
+      Unit = {
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
+      };
+      # Do not launch clients until the daemon owns its application bus name.
+      # Type=simple lets walker-open race the daemon and take the name first.
+      Service = {
+        Type = "dbus";
+        BusName = "dev.benz.walker";
+        RestartSec = 1;
+      };
+    };
+    # The Walker daemon starts hidden; show the launcher once on login too.
+    walker-open = {
+      Unit = {
+        Description = "Open Walker on desktop login";
+        After = [ "graphical-session.target" "walker.service" ];
+        Requires = [ "walker.service" ];
+        PartOf = [ "graphical-session.target" ];
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${config.services.walker.package}/bin/walker";
+        RemainAfterExit = true;
+      };
+      Install.WantedBy = [ "graphical-session.target" ];
     };
     quickshell.Unit.PartOf = [ "graphical-session.target" ];
   };
 
   services.walker = {
     enable = true;
+    package = userPkgs.walker;
     systemd.enable = true;
     settings = {
       app_launch_prefix = "session-app ";
@@ -267,13 +342,12 @@ in
     };
   };
 
-  home.packages = with pkgs; [
+  home.packages = with userPkgs; [
     sessionApp
     wallpaperApp
-    librewolf
-    # Keep Codex current without moving the stable system package set.
-    unstablePkgs.codex
+    codex
     unzip
+    file-roller
 
     # Coding and terminal basics
     neovim
@@ -281,8 +355,6 @@ in
     ripgrep
     fd
     fzf
-    direnv
-    nixd
     nil
     pyright
     ruff
@@ -301,6 +373,9 @@ in
     clang
     rustc
     cargo
+    zig
+    zls
+    typescript-language-server
 
     # Math coursework and LaTeX
     texlive.combined.scheme-medium
@@ -308,13 +383,14 @@ in
     biber
     texlivePackages.chktex
     zathura
-    python3Packages.sympy
 
     # Launch with `nvidia-offload prismlauncher` when you want the RTX 4070.
     prismlauncher
 
+    # Video meetings
+    zoom-us
+
     # Small Wayland desktop essentials
-    xwayland-satellite
     networkmanagerapplet
     wl-clipboard
     grim

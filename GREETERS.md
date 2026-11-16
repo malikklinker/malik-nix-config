@@ -1,15 +1,27 @@
 # Graphical greeter investigation — 2026-10-18
 
-The main `zephyrus` configuration uses **SDDM with KWin on Wayland and the
-Catppuccin Mocha theme with mauve accents**, from `modules/greeter-sddm.nix`.
-UWSM-managed Hyprland is the default desktop session, with Niri selectable at
-login. `zephyrus-sddm` is a
+The main `zephyrus` configuration uses **SDDM with KWin on Wayland and a custom
+Midnight Blue theme**, from `modules/greeter-sddm.nix`.
+UWSM-managed Hyprland is the desktop session. `zephyrus-sddm` is a
 compatibility alias for the same configuration.
 
-The Catppuccin theme replaces Breeze as of 2026-10-19. It uses JetBrainsMono
-Nerd Font at size 12 and the theme's bundled background. The theme is installed
-in both the system profile and SDDM's extra packages, alongside Qt SVG and
-virtual keyboard support.
+The Midnight Blue theme replaces Catppuccin as of 2026-11-13. It shares GRUB's
+mountain wallpaper and palette, with bundled JetBrains Mono fonts, a large clock,
+and a translucent login panel. Its Qt 6 QML sources live in `modules/sddm/`.
+The theme is installed in both the system profile and SDDM's extra packages,
+alongside Qt SVG and virtual keyboard support. It uses standard Qt Quick Controls
+without Plasma's private QML components. The password field is focused initially;
+Enter submits, Escape clears it, and Tab navigates the form. Failed authentication
+clears the password and shows an error; Caps Lock gets a visible warning.
+The session picker offers the installed sessions. Restart and shutdown require
+confirmation; sleep follows SDDM's reported capability.
+
+SDDM's `ThemeDir` points directly at the theme's immutable Nix store output.
+This avoids stale Qt QML disk caches keyed to the reused `/run/current-system`
+URL: Nix normalizes file timestamps, and a local reproduction showed Qt executing
+the previous QML even after the source changed. Each theme revision now gets its
+own URL. **OS Updates → Preview login screen** can display the installed theme
+without logging out; its test window also disables the QML disk cache.
 
 ## Why SDDM first
 
@@ -19,13 +31,13 @@ direct evidence that this combination can run on the laptop, although it does
 not prove it will work with the changed graphics packages. GDM's past success
 does not establish that another greeter will work.
 
-SDDM can launch Niri and Hyprland Wayland sessions. Its greeter can use X11 or a
+SDDM launches the Hyprland Wayland session. Its greeter can use X11 or a
 separate Wayland compositor. The greeter uses stable KWin rather than Hyprland,
 so displaying the login screen does not require Aquamarine to initialize.
 The initial Breeze setup needed `plasma-workspace` in SDDM's `extraPackages`
-for its private QML components; Catppuccin uses its own components instead.
+for its private QML components; Midnight Blue uses standard Qt components instead.
 Session remembering is disabled; Hyprland (uwsm-managed) is the default and
-both sessions remain selectable.
+the installed Hyprland session entries remain selectable.
 
 Upstream still labels SDDM's Wayland greeter mode experimental. The recommendation
 is based on this machine's existing setup, not a blanket claim that Wayland SDDM
@@ -57,20 +69,20 @@ sudo nixos-rebuild boot --flake path:/home/malikk/malik-nix-config#zephyrus
 ```
 
 This installs a boot generation; it does not restart the live login manager.
-Reboot when ready, keeping the previous boot generation available in systemd-boot.
+Reboot when ready, keeping the previous boot generation available in GRUB.
 Confirm keyboard input, password failure/success, Hyprland launch, logout back to
-SDDM, Niri selection, and return from suspend. Start with the internal panel;
+SDDM and return from suspend. Start with the internal panel;
 then check a connected external monitor.
 
 If the greeter is blank or unresponsive, use Ctrl+Alt+F3 for a console login,
-or select the previous generation in systemd-boot. From the console, collect:
+or select the previous generation in GRUB. From the console, collect:
 
 ```sh
 journalctl -b -u display-manager --no-pager
 journalctl -b -k --no-pager
 ```
 
-For recovery, select the previous working generation in systemd-boot. Both
+For recovery, select the previous working generation in GRUB. Both
 flake output names now select SDDM; neither is a text-greeter fallback.
 A successful build does not test physical displays or authentication.
 

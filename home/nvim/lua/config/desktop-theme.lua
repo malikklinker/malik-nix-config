@@ -21,19 +21,19 @@ function M.statusline_theme(theme)
 		return "auto"
 	end
 	local c = theme.colors
-	local function mode(accent)
+	local function mode()
 		return {
-			a = { fg = c.background, bg = accent, gui = "bold" },
-			b = { fg = c.text, bg = c.overlay },
-			c = { fg = c.subtext, bg = c.surface },
+			a = { fg = c.subtext, bg = c.background },
+			b = { fg = c.subtext, bg = c.background },
+			c = { fg = c.subtext, bg = c.background },
 		}
 	end
 	return {
-		normal = mode(c.accent),
-		insert = mode(c.green),
-		visual = mode(c.secondary),
-		replace = mode(c.red),
-		command = mode(c.yellow),
+		normal = mode(),
+		insert = mode(),
+		visual = mode(),
+		replace = mode(),
+		command = mode(),
 		inactive = {
 			a = { fg = c.muted, bg = c.background },
 			b = { fg = c.muted, bg = c.background },
@@ -58,6 +58,9 @@ function M.apply()
 		WinSeparator = { fg = c.overlay },
 		CursorLine = { bg = c.surface },
 		CursorLineNr = { fg = c.accent, bold = true },
+		LineNr = { fg = c.muted, bg = c.background },
+		SignColumn = { bg = c.background },
+		FoldColumn = { fg = c.muted, bg = c.background },
 		Visual = { bg = c.overlay },
 		Pmenu = { fg = c.text, bg = c.surface },
 		PmenuSel = { fg = c.background, bg = c.accent, bold = true },
@@ -84,7 +87,7 @@ function M.apply()
 	for group, value in pairs(highlights) do
 		vim.api.nvim_set_hl(0, group, value)
 	end
-	-- Preserve LazyVim's sections while refreshing the mode colors on palette changes.
+	-- Keep the plain status line in sync with desktop palette changes.
 	if package.loaded["lualine"] then
 		local lualine = require("lualine")
 		local options = lualine.get_config()

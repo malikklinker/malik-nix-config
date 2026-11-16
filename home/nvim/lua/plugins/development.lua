@@ -71,6 +71,8 @@ return {
       -- Error recovery can color the IN in MIN_Y as a separate keyword.
       -- The Fortran ftplugin uses Neovim's built-in syntax highlighting instead.
       highlight = { disable = { "fortran" } },
+      -- Incomplete program units can also lose their body indentation.
+      indent = { disable = { "fortran" } },
       ensure_installed = { "fortran", "c", "cpp", "rust", "lua", "cmake", "make", "toml", "json", "yaml", "bash" },
     },
   },

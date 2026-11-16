@@ -1,0 +1,18 @@
+[
+  {
+    "context": "Editor && vim_mode == normal && !menu",
+    "bindings": {
+      "space space": "file_finder::Toggle",
+      "space f f": "file_finder::Toggle",
+      "space s g": "pane::DeploySearch",
+      "space e": "project_panel::ToggleFocus",
+      "space b b": "tab_switcher::Toggle",
+      "space c a": "editor::ToggleCodeActions",
+      "space c r": "editor::Rename",
+      "space c f": "editor::Format",
+      "space x x": "diagnostics::Deploy",
+      "space g g": "git_panel::ToggleFocus",
+      "space z": "workspace::ToggleCenteredLayout"
+    }
+  }
+]

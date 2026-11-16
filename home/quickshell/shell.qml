@@ -45,7 +45,7 @@ PanelWindow {
     Loader {
       source: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== ""
         ? "HyprlandWorkspaces.qml"
-        : Quickshell.env("NIRI_SOCKET") !== "" ? "NiriWorkspaces.qml" : ""
+        : ""
     }
 
     Item { Layout.fillWidth: true }
@@ -142,7 +142,7 @@ PanelWindow {
 
           Repeater {
             model: powerMenu.confirmAction === ""
-              ? ["Lock", "Suspend", "Restart…", "Shut down…"]
+              ? ["OS Updates…", "Lock", "Suspend", "Restart…", "Shut down…"]
               : ["Cancel", `Confirm ${powerMenu.confirmAction}`]
 
             delegate: Rectangle {
@@ -177,6 +177,9 @@ PanelWindow {
                     Quickshell.execDetached(["systemctl", powerMenu.confirmAction === "Restart" ? "reboot" : "poweroff"])
                     powerMenu.visible = false
                     powerMenu.confirmAction = ""
+                  } else if (actionButton.modelData === "OS Updates…") {
+                    Quickshell.execDetached(["os-update"])
+                    powerMenu.visible = false
                   } else if (actionButton.modelData === "Restart…") {
                     powerMenu.confirmAction = "Restart"
                   } else if (actionButton.modelData === "Shut down…") {

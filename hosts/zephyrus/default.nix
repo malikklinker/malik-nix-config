@@ -2,15 +2,19 @@
   config,
   lib,
   pkgs,
+  userPkgs,
   ...
 }:
 
 {
   imports = [
     ./hardware-configuration.nix
+    ../../modules/package-policy.nix
+    ../../modules/bootloader.nix
     ../../modules/desktop.nix
     ../../modules/greeter-sddm.nix
     ../../modules/nvidia.nix
+    ../../modules/power.nix
   ];
 
   networking.hostName = "zephyrus";
@@ -29,8 +33,6 @@
   time.timeZone = "America/Los_Angeles";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
   # NVIDIA 595.71.05 does not build against Linux 7.2, which removed strncpy
   # from the kernel API. Use the current 6.18 LTS kernel until nixpkgs updates
   # the NVIDIA driver with a compatible fix.
@@ -48,11 +50,12 @@
   };
 
   programs.fish.enable = true;
+  programs.fish.package = userPkgs.fish;
 
   users.users.malikk = {
     isNormalUser = true;
     description = "Malik";
-    shell = pkgs.fish;
+    shell = userPkgs.fish;
     extraGroups = [
       "networkmanager"
       "wheel"
@@ -102,6 +105,13 @@
     wget
     pciutils
     usbutils
+    (userPkgs.python3.withPackages (python: with python; [
+      numpy
+      matplotlib
+      scipy
+      pandas
+      sympy
+    ]))
   ];
 
   system.stateVersion = "26.05";

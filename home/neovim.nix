@@ -1,5 +1,6 @@
-{ lib, pkgs, ... }:
+{ lib, userPkgs, ... }:
 let
+  pkgs = userPkgs;
   tools = {
     fortls = "${pkgs.fortls}/bin/fortls";
     clangd = "${pkgs.clang-tools}/bin/clangd";

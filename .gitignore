@@ -1,0 +1,28 @@
+# Nix build outputs (keep flake.lock tracked).
+/result
+/result-*
+
+# Runtime files and Python tooling caches.
+*.log
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+
+# Local credentials and environment files must stay outside the flake.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.aws/
+
+# Local editor and OS state.
+.DS_Store
+*.swp
+*.swo
+*~

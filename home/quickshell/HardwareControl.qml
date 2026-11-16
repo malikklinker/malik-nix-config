@@ -10,7 +10,7 @@ Rectangle {
   id: root
   implicitWidth: caption.implicitWidth + 12
   implicitHeight: 28
-  color: pointer.containsMouse || popup.visible ? Theme.surface : "transparent"
+  color: pointer.containsMouse || popup.visible || connections.visible ? Theme.surface : "transparent"
   property var state: ({screen: null, keyboard: null, profile: null, themeSync: true})
   property string errorMessage: ""
   property var pending: []
@@ -37,8 +37,8 @@ Rectangle {
 
   IpcHandler {
     target: "hardware"
-    function open(): void { popup.visible = true; root.refresh() }
-    function close(): void { popup.visible = false }
+    function open(): void { connections.visible = false; popup.visible = true; root.refresh() }
+    function close(): void { popup.visible = false; connections.visible = false }
   }
 
   Text {
@@ -54,7 +54,11 @@ Rectangle {
     anchors.fill: parent
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
-    onClicked: { popup.visible = !popup.visible; root.refresh() }
+    onClicked: {
+      if (connections.visible) { connections.visible = false; popup.visible = true }
+      else popup.visible = !popup.visible
+      root.refresh()
+    }
     onWheel: wheel => {
       if (wheel.angleDelta.y !== 0) root.execute(wheel.angleDelta.y > 0 ? "screen-up" : "screen-down", "")
     }
@@ -221,6 +225,20 @@ Rectangle {
           font.pixelSize: 11
           wrapMode: Text.WordWrap
         }
+        Rectangle {
+          Layout.fillWidth: true
+          implicitHeight: 1
+          color: Theme.overlay
+        }
+        ConnectivityControls {
+          Layout.fillWidth: true
+          active: popup.visible
+          onRequested: mode => {
+            popup.visible = false
+            connections.mode = mode
+            connections.visible = true
+          }
+        }
         Text {
           Layout.fillWidth: true
           visible: root.errorMessage !== ""
@@ -228,6 +246,61 @@ Rectangle {
           color: Theme.red
           font.pixelSize: 11
           wrapMode: Text.WrapAnywhere
+        }
+      }
+    }
+  }
+  PopupWindow {
+    id: connections
+    property string mode: "wifi"
+    anchor.item: root
+    anchor.edges: Edges.Bottom | Edges.Right
+    anchor.gravity: Edges.Bottom | Edges.Left
+    implicitWidth: 410
+    implicitHeight: Math.min(620, connectionContent.implicitHeight + 32, connections.screen ? connections.screen.height - 60 : 620)
+    color: "transparent"
+    grabFocus: true
+
+    function back() { visible = false; popup.visible = true }
+    Rectangle {
+      anchors.fill: parent
+      color: Theme.background
+      border.color: Theme.overlay
+      border.width: 1
+      focus: true
+      Keys.onEscapePressed: connections.back()
+      Controls.ScrollView {
+        anchors.fill: parent
+        anchors.margins: 16
+        contentWidth: availableWidth
+        clip: true
+        ColumnLayout {
+          id: connectionContent
+          width: parent.width
+          spacing: 12
+          RowLayout {
+            Layout.fillWidth: true
+            PanelButton { text: "‹ Back"; onClicked: connections.back() }
+            Text {
+              Layout.fillWidth: true
+              text: connections.mode === "wifi" ? "Wi-Fi" : "Bluetooth"
+              color: Theme.text
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 15
+              font.bold: true
+            }
+            PanelButton { text: "×"; Accessible.name: "Close connections"; onClicked: connections.visible = false }
+          }
+          WifiPanel {
+            Layout.fillWidth: true
+            visible: connections.mode === "wifi"
+            active: visible && connections.visible
+          }
+          BluetoothPanel {
+            Layout.fillWidth: true
+            visible: connections.mode === "bluetooth"
+            active: visible && connections.visible
+          }
         }
       }
     }

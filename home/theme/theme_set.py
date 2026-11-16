@@ -31,6 +31,8 @@ def run(command):
 def reload_apps(theme):
     if os.environ.get("DESKTOP_THEME_NO_RELOAD") == "1":
         return
+    # Helix reloads configuration and its selected theme on SIGUSR1.
+    run(["pkill", "-USR1", "-u", str(os.getuid()), "-x", r"(hx|\.hx-wrapped)"])
     # Hardware sync is optional: an unavailable ASUS daemon must not prevent
     # the rest of the desktop from changing palette.
     result = run(["desktop-hardware", "sync"])
@@ -38,7 +40,6 @@ def reload_apps(theme):
         print(result.stderr.strip(), file=sys.stderr)
     if os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
         run(["hyprctl", "reload", "config-only"])
-    # Niri watches the included palette file for changes.
     run(["makoctl", "reload"])
     run(["systemctl", "--user", "try-restart", "walker.service"])
     preference = "prefer-dark" if theme["variant"] == "dark" else "prefer-light"
@@ -52,6 +53,317 @@ def reload_apps(theme):
                 os.kill(int(pid), signal.SIGUSR1)
             except ProcessLookupError:
                 pass
+
+
+def zed_theme(theme):
+    """A flat editor theme using the same semantic colors as the desktop."""
+    c, p = theme["colors"], theme["palette"]
+    style = {}
+    for role, keys in {
+        "background": [
+            "background",
+            "editor.background",
+            "editor.gutter.background",
+            "toolbar.background",
+            "tab.active_background",
+            "terminal.background",
+        ],
+        "surface": [
+            "surface.background",
+            "elevated_surface.background",
+            "panel.background",
+            "title_bar.background",
+            "title_bar.inactive_background",
+            "status_bar.background",
+            "tab_bar.background",
+            "tab.inactive_background",
+            "editor.active_line.background",
+            "editor.subheader.background",
+        ],
+        "overlay": [
+            "border",
+            "border.variant",
+            "element.hover",
+            "element.selected",
+            "ghost_element.hover",
+            "ghost_element.selected",
+            "editor.highlighted_line.background",
+        ],
+        "text": [
+            "text",
+            "icon",
+            "editor.foreground",
+            "editor.active_line_number",
+            "terminal.foreground",
+        ],
+        "subtext": ["text.muted", "icon.muted"],
+        "muted": [
+            "text.placeholder",
+            "text.disabled",
+            "icon.disabled",
+            "editor.line_number",
+            "editor.invisible",
+            "editor.wrap_guide",
+        ],
+        "accent": ["border.focused", "text.accent", "icon.accent", "border.selected"],
+        "red": ["error"],
+        "yellow": ["warning"],
+        "green": ["success"],
+        "blue": ["info"],
+    }.items():
+        style.update({key: c[role] for key in keys})
+    # Zed's fallback status colors are saturated ANSI colors, not colors from
+    # the active theme. Define every status, including Git's separate tokens.
+    for role, statuses in {
+        "red": ["deleted", "error"],
+        "yellow": ["conflict", "modified", "warning"],
+        "green": ["created", "success"],
+        "accent": ["info", "renamed"],
+        "subtext": ["hint", "unreachable"],
+        "muted": ["hidden", "ignored", "predictive"],
+    }.items():
+        for status in statuses:
+            style[status] = c[role]
+            style[f"{status}.background"] = c[role] + "18"
+            style[f"{status}.border"] = c[role] + "50"
+    style.update(
+        {
+            "version_control.added": c["green"],
+            "version_control.modified": c["yellow"],
+            "version_control.deleted": c["red"],
+            "version_control.word_added": c["green"] + "30",
+            "version_control.word_deleted": c["red"] + "30",
+            "version_control.conflict_marker.ours": c["green"] + "20",
+            "version_control.conflict_marker.theirs": c["blue"] + "20",
+            "border.disabled": c["surface"],
+            "border.transparent": "#00000000",
+            "element.background": c["surface"],
+            "element.active": c["overlay"],
+            "element.disabled": c["surface"],
+            "ghost_element.background": "#00000000",
+            "ghost_element.active": c["overlay"],
+            "ghost_element.disabled": "#00000000",
+            "icon.placeholder": c["muted"],
+            "drop_target.background": c["accent"] + "30",
+            "panel.focused_border": c["overlay"],
+            "pane.focused_border": c["overlay"],
+            "scrollbar.thumb.background": c["muted"] + "60",
+            "scrollbar.thumb.hover_background": c["muted"] + "90",
+            "scrollbar.thumb.border": "#00000000",
+            "scrollbar.track.background": "#00000000",
+            "scrollbar.track.border": "#00000000",
+            "editor.hover_line_number": c["subtext"],
+            "editor.indent_guide": c["overlay"],
+            "editor.indent_guide_active": c["muted"],
+            "editor.active_wrap_guide": c["overlay"],
+            "editor.document_highlight.read_background": c["accent"] + "20",
+            "editor.document_highlight.write_background": c["secondary"] + "25",
+            "editor.document_highlight.bracket_background": c["accent"] + "25",
+            "search.active_match_background": c["secondary"] + "40",
+            "link_text.hover": c["accent"],
+            "terminal.bright_foreground": p["base07"],
+            "terminal.dim_foreground": c["muted"],
+            "accents": [
+                c[key]
+                for key in ["accent", "secondary", "cyan", "green", "yellow", "red"]
+            ],
+        }
+    )
+    style["search.match_background"] = c["accent"] + "40"
+    style["players"] = [
+        {
+            "cursor": c["accent"],
+            "background": c["accent"],
+            "selection": c["accent"] + "40",
+        }
+    ]
+    for name, base in {
+        "black": "base00",
+        "red": "base08",
+        "green": "base0B",
+        "yellow": "base0A",
+        "blue": "base0D",
+        "magenta": "base0E",
+        "cyan": "base0C",
+        "white": "base05",
+    }.items():
+        style[f"terminal.ansi.{name}"] = p[base]
+        style[f"terminal.ansi.bright_{name}"] = p["base03" if name == "black" else base]
+        style[f"terminal.ansi.dim_{name}"] = p[base]
+    style["terminal.ansi.bright_white"] = p["base07"]
+    syntax = {}
+    for base, captures in {
+        "base03": ["comment", "comment.doc"],
+        "base05": [
+            "variable",
+            "property",
+            "punctuation",
+            "punctuation.bracket",
+            "punctuation.delimiter",
+        ],
+        "base08": ["tag", "variable.special"],
+        "base09": ["number", "boolean", "constant"],
+        "base0A": ["type", "constructor"],
+        "base0B": ["string", "string.special"],
+        "base0C": ["operator", "string.escape"],
+        "base0D": ["function", "function.method"],
+        "base0E": ["keyword", "attribute"],
+    }.items():
+        syntax.update({capture: {"color": p[base]} for capture in captures})
+    syntax["comment"]["font_style"] = "italic"
+    # Match desktop-syntax.lua, including its restrained Midnight Blue roles.
+    roles = {
+        "text": c["text"],
+        "punctuation": c["subtext"],
+        "keyword": p["base0E"],
+        "function": p["base0D"],
+        "type": p["base0A"],
+        "constant": p["base09"],
+        "string": p["base0B"],
+        "special": p["base0C"],
+    }
+    if theme["slug"] == "midnight-blue":
+        roles.update(
+            keyword=c["accent"],
+            function=c["accent"],
+            type=c["secondary"],
+            constant=c["secondary"],
+            string=c["cyan"],
+            special=c["secondary"],
+        )
+    for role, captures in {
+        "text": [
+            "primary",
+            "embedded",
+            "variable",
+            "variable.parameter",
+            "variable.member",
+            "property",
+            "namespace",
+        ],
+        "punctuation": [
+            "operator",
+            "punctuation",
+            "punctuation.bracket",
+            "punctuation.delimiter",
+            "punctuation.list_marker",
+            "punctuation.markup",
+        ],
+        "keyword": [
+            "keyword",
+            "keyword.conditional",
+            "keyword.operator",
+            "keyword.import",
+            "keyword.exception",
+            "preproc",
+            "label",
+        ],
+        "function": [
+            "function",
+            "function.call",
+            "function.builtin",
+            "function.method",
+            "constructor",
+            "title",
+        ],
+        "type": ["type", "type.builtin", "attribute", "tag", "enum"],
+        "constant": [
+            "constant",
+            "constant.builtin",
+            "number",
+            "number.float",
+            "boolean",
+            "variable.special",
+            "variable.parameter.builtin",
+        ],
+        "string": [
+            "string",
+            "string.special",
+            "string.special.path",
+            "string.special.url",
+            "string.regex",
+            "link_uri",
+        ],
+        "special": ["string.escape", "punctuation.special", "link_text", "emphasis"],
+    }.items():
+        syntax.update({capture: {"color": roles[role]} for capture in captures})
+    syntax["hint"] = {"color": c["subtext"]}
+    syntax["predictive"] = {"color": c["muted"], "font_style": "italic"}
+    syntax["emphasis.strong"] = {"color": c["text"], "font_weight": 700}
+    style["syntax"] = syntax
+    return {
+        "$schema": "https://zed.dev/schema/themes/v0.2.0.json",
+        "name": "Desktop",
+        "author": "Malik",
+        "themes": [{"name": "Desktop", "appearance": theme["variant"], "style": style}],
+    }
+
+
+def helix_theme(theme):
+    """Flat UI and restrained syntax matching the shared desktop palette."""
+    c, p = theme["colors"], theme["palette"]
+    roles = {
+        "keyword": p["base0E"], "function": p["base0D"],
+        "type": p["base0A"], "constant": p["base09"], "string": p["base0B"],
+    }
+    if theme["slug"] == "midnight-blue":
+        roles.update(keyword=c["accent"], function=c["accent"],
+                     type=c["secondary"], constant=c["secondary"], string=c["cyan"])
+    styles = {key: {"fg": value} for key, value in roles.items()}
+    styles.update({
+        "attribute": {"fg": c["secondary"]},
+        "constructor": {"fg": roles["type"]},
+        "namespace": {"fg": roles["type"]},
+        "variable": {"fg": c["text"]},
+        "label": {"fg": c["accent"]},
+        "operator": {"fg": c["subtext"]},
+        "punctuation": {"fg": c["subtext"]},
+        "string.special": {"fg": c["cyan"]},
+        "constant.character.escape": {"fg": c["cyan"]},
+        "comment": {"fg": c["muted"], "modifiers": ["italic"]},
+        "ui.background": {"bg": c["background"]},
+        "ui.text": {"fg": c["text"]},
+        "ui.text.focus": {"fg": c["accent"], "modifiers": ["bold"]},
+        "ui.text.inactive": {"fg": c["muted"]},
+        "ui.linenr": {"fg": c["muted"]},
+        "ui.linenr.selected": {"fg": c["accent"]},
+        "ui.gutter": {"bg": c["background"]},
+        "ui.selection": {"bg": c["overlay"]},
+        "ui.cursor": {"fg": c["background"], "bg": c["accent"]},
+        "ui.cursor.select": {"fg": c["background"], "bg": c["secondary"]},
+        "ui.cursor.insert": {"fg": c["background"], "bg": c["green"]},
+        "ui.cursor.match": {"fg": c["secondary"], "modifiers": ["bold"]},
+        "ui.statusline": {"fg": c["text"], "bg": c["surface"]},
+        "ui.statusline.inactive": {"fg": c["muted"], "bg": c["background"]},
+        "ui.statusline.normal": {"fg": c["background"], "bg": c["accent"], "modifiers": ["bold"]},
+        "ui.statusline.insert": {"fg": c["background"], "bg": c["green"], "modifiers": ["bold"]},
+        "ui.statusline.select": {"fg": c["background"], "bg": c["secondary"], "modifiers": ["bold"]},
+        "ui.popup": {"fg": c["text"], "bg": c["surface"]},
+        "ui.help": {"fg": c["text"], "bg": c["surface"]},
+        "ui.menu": {"fg": c["text"], "bg": c["surface"]},
+        "ui.menu.selected": {"fg": c["accent"], "bg": c["overlay"]},
+        "ui.menu.scroll": {"fg": c["muted"], "bg": c["surface"]},
+        "ui.window": {"fg": c["overlay"]},
+        "ui.virtual": {"fg": c["muted"]},
+        "ui.virtual.jump-label": {"fg": c["background"], "bg": c["secondary"], "modifiers": ["bold"]},
+        "markup.heading": {"fg": c["accent"], "modifiers": ["bold"]},
+        "markup.bold": {"modifiers": ["bold"]},
+        "markup.italic": {"modifiers": ["italic"]},
+        "markup.link.url": {"fg": c["cyan"], "modifiers": ["underlined"]},
+        "markup.raw": {"fg": roles["string"]},
+        "diff.plus": {"fg": c["green"]},
+        "diff.delta": {"fg": c["yellow"]},
+        "diff.minus": {"fg": c["red"]},
+    })
+    for severity, role in {"error": "red", "warning": "yellow", "info": "blue", "hint": "muted"}.items():
+        styles[severity] = {"fg": c[role]}
+        styles[f"diagnostic.{severity}"] = {"underline": {"color": c[role], "style": "curl"}}
+    # JSON strings and inline objects are also valid TOML values here.
+    def value(item):
+        if isinstance(item, dict):
+            return "{ " + ", ".join(f"{key} = {value(val)}" for key, val in item.items()) + " }"
+        return json.dumps(item)
+    return "\n".join(f'{json.dumps(key)} = {value(style)}' for key, style in styles.items()) + "\n"
 
 
 def apply_theme(theme, state, assets):
@@ -105,18 +417,21 @@ def apply_theme(theme, state, assets):
         + border("overlay")
         + '" }\n',
     )
-    atomic_write(
-        state / "niri.kdl",
-        'layout { focus-ring { width 2; active-color "'
-        + colors["accent"]
-        + '"; inactive-color "'
-        + colors["overlay"]
-        + '"; }; }\n',
-    )
     css = (assets / "walker.css.in").read_text()
     for role, value in colors.items():
         css = css.replace("@" + role.upper() + "@", value)
     atomic_write(state / "walker.css", css)
+    pear_css = (assets / "pear.css.in").read_text()
+    for role, value in colors.items():
+        pear_css = pear_css.replace("@" + role.upper() + "@", value)
+    pear_css = pear_css.replace("@VARIANT@", theme["variant"])
+    atomic_write(state / "pear.css", pear_css)
+    vivaldi_css = (assets / "vivaldi.css.in").read_text()
+    for role, value in colors.items():
+        vivaldi_css = vivaldi_css.replace("@" + role.upper() + "@", value)
+    vivaldi_css = vivaldi_css.replace("@VARIANT@", theme["variant"])
+    vivaldi_base = (assets / "vivaldi-base.css").read_text()
+    atomic_write(state / "vivaldi/desktop.css", vivaldi_base + "\n" + vivaldi_css)
     atomic_write(
         state / "mako.conf",
         "\n".join(
@@ -162,13 +477,18 @@ def apply_theme(theme, state, assets):
         )
         + "\n"
     )
-    atomic_write(state / "gtk3.css", gtk_css)
+    thunar_css = (assets / "thunar.css.in").read_text()
+    for role, value in colors.items():
+        thunar_css = thunar_css.replace("@" + role.upper() + "@", value)
+    atomic_write(state / "gtk3.css", gtk_css + "\n" + thunar_css)
     variables = "\n".join(
         f"  --{name.replace('_', '-')}: {colors[role]};"
         for name, role in gtk_roles.items()
         if not name.startswith("theme_")
     )
     atomic_write(state / "gtk4.css", gtk_css + ":root {\n" + variables + "\n}\n")
+    atomic_write(state / "zed.json", json.dumps(zed_theme(theme), indent=2) + "\n")
+    atomic_write(state / "helix.toml", helix_theme(theme))
     # Publish the palette last so Quickshell and Neovim see a completed update.
     atomic_write(state / "theme.json", json.dumps(theme) + "\n")
     reload_apps(theme)

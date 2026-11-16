@@ -1,0 +1,121 @@
+/* Catppuccin fallback; desktop-palette.css supplies the selected Base16 colors. */
+#browser {
+  --desktop-background: #1e1e2e;
+  --desktop-surface: #181825;
+  --desktop-overlay: #313244;
+  --desktop-text: #cdd6f4;
+  --desktop-subtext: #a6adc8;
+  --desktop-accent: #cba6f7;
+
+  --colorBg: var(--desktop-background) !important;
+  --colorBgDark: var(--desktop-surface) !important;
+  --colorBgDarker: var(--desktop-surface) !important;
+  --colorBgLight: var(--desktop-overlay) !important;
+  --colorBgLighter: var(--desktop-overlay) !important;
+  --colorBgLightIntense: var(--desktop-background) !important;
+  --colorBgFaded: var(--desktop-surface) !important;
+  --colorBgInverse: var(--desktop-overlay) !important;
+  --colorBgInverser: var(--desktop-overlay) !important;
+  --colorBgIntense: var(--desktop-surface) !important;
+  --colorBgIntenser: var(--desktop-surface) !important;
+  --colorFg: var(--desktop-text) !important;
+  --colorFgIntense: var(--desktop-text) !important;
+  --colorFgFaded: var(--desktop-subtext) !important;
+  --colorFgFadedMore: var(--desktop-subtext) !important;
+  --colorFgFadedMost: var(--desktop-subtext) !important;
+  --colorFgDark: var(--desktop-text) !important;
+  --colorBorder: var(--desktop-overlay) !important;
+  --colorBorderSubtle: var(--desktop-overlay) !important;
+  --colorBorderIntense: var(--desktop-accent) !important;
+  --colorAccentBg: var(--desktop-surface) !important;
+  --colorAccentBgDark: var(--desktop-background) !important;
+  --colorAccentBgDarker: var(--desktop-background) !important;
+  --colorAccentBgFaded: var(--desktop-surface) !important;
+  --colorAccentBgFadedMore: var(--desktop-surface) !important;
+  --colorAccentBgFadedMost: var(--desktop-surface) !important;
+  --colorAccentFg: var(--desktop-text) !important;
+  --colorAccentFgFaded: var(--desktop-subtext) !important;
+  --colorAccentBorder: var(--desktop-overlay) !important;
+  --colorHighlightBg: var(--desktop-accent) !important;
+  --colorHighlightFg: var(--desktop-background) !important;
+  --colorTabBar: var(--desktop-surface) !important;
+  /* Vivaldi's unified UI derives separate colors from its theme image. */
+  --colorImageFg: var(--desktop-text) !important;
+  --colorImageTopFg: var(--desktop-text) !important;
+  --colorImageBottomFg: var(--desktop-text) !important;
+  --colorImageLeftFg: var(--desktop-text) !important;
+  --colorImageRightFg: var(--desktop-text) !important;
+  --colorImageCenterFg: var(--desktop-text) !important;
+  --colorImageBg: var(--desktop-surface) !important;
+  --colorImageTopBg: var(--desktop-surface) !important;
+  --colorImageBottomBg: var(--desktop-surface) !important;
+  --colorImageLeftBg: var(--desktop-surface) !important;
+  --colorImageRightBg: var(--desktop-surface) !important;
+  --colorImageBgAlpha: var(--desktop-surface) !important;
+  --colorImageTopBgAlpha: var(--desktop-surface) !important;
+  --colorImageBottomBgAlpha: var(--desktop-surface) !important;
+  --colorImageLeftBgAlpha: var(--desktop-surface) !important;
+  --colorImageRightBgAlpha: var(--desktop-surface) !important;
+  --colorImageBgAlphaHeavy: var(--desktop-surface) !important;
+  --colorImageTopBgAlphaHeavy: var(--desktop-surface) !important;
+  --colorImageBottomBgAlphaHeavy: var(--desktop-surface) !important;
+  --colorImageLeftBgAlphaHeavy: var(--desktop-surface) !important;
+  --colorImageRightBgAlphaHeavy: var(--desktop-surface) !important;
+  --radius: 0px !important;
+  --radiusHalf: 0px !important;
+  --radiusCap: 0px !important;
+  --radiusRounded: 0px !important;
+  font-family: "JetBrainsMono Nerd Font", monospace !important;
+  font-size: 12px;
+  background-color: var(--desktop-background) !important;
+  background-image: none !important;
+  color: var(--desktop-text) !important;
+}
+
+#browser .tab {
+  border-radius: 0 !important;
+  font-size: 12px;
+}
+
+#browser .tab.active {
+  background: var(--desktop-background) !important;
+  color: var(--desktop-text) !important;
+  box-shadow: inset 0 2px var(--desktop-accent) !important;
+}
+
+#browser .mainbar {
+  background: var(--desktop-background) !important;
+  border-bottom: 1px solid var(--desktop-overlay);
+  padding-block: 3px;
+}
+
+#browser .UrlBar-AddressField,
+#browser .SearchField,
+#browser .quick-command-container {
+  background: var(--desktop-surface) !important;
+  border: 1px solid var(--desktop-overlay) !important;
+  border-radius: 0 !important;
+}
+
+#browser .UrlBar-AddressField:focus-within,
+#browser .SearchField:focus-within {
+  border-color: var(--desktop-accent) !important;
+}
+
+#browser .button-toolbar > button {
+  border-radius: 0 !important;
+}
+
+#browser .button-toolbar > button:hover {
+  background: var(--desktop-overlay) !important;
+}
+
+#browser #panels-container,
+#browser .panel-group,
+#browser .bookmark-bar,
+#browser #footer,
+#browser .toolbar-statusbar,
+#browser .StatusInfo {
+  background: var(--desktop-surface) !important;
+  color: var(--desktop-text) !important;
+}

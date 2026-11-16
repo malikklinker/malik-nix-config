@@ -1,0 +1,12 @@
+{
+  "Program": { "prefix": "program", "body": ["program ${1:main}", "  use, intrinsic :: iso_fortran_env, only: real64, int32", "  implicit none", "", "  $0", "end program ${1:main}"], "description": "Modern Fortran program" },
+  "Module": { "prefix": "module", "body": ["module ${1:my_module}", "  use, intrinsic :: iso_fortran_env, only: real64", "  implicit none", "  private", "  public :: ${2:my_procedure}", "", "contains", "", "  $0", "", "end module ${1:my_module}"] },
+  "Subroutine": { "prefix": "subroutine", "body": ["subroutine ${1:name}(${2:args})", "  ${3:real(real64), intent(in) :: args}", "", "  $0", "end subroutine ${1:name}"] },
+  "Pure function": { "prefix": "function", "body": ["pure function ${1:name}(${2:x}) result(${3:value})", "  real(real64), intent(in) :: ${2:x}", "  real(real64) :: ${3:value}", "", "  $0", "end function ${1:name}"] },
+  "Derived type": { "prefix": "dtype", "body": ["type :: ${1:name}", "  ${2:real(real64) :: value}", "end type ${1:name}", "$0"] },
+  "Counted loop": { "prefix": "doloop", "body": ["do ${1:i} = ${2:1}, ${3:n}", "  $0", "end do"] },
+  "Concurrent loop": { "prefix": "doconcurrent", "body": ["do concurrent (${1:i} = ${2:1}:${3:n})", "  $0", "end do"] },
+  "Select case": { "prefix": "selectcase", "body": ["select case (${1:expression})", "case (${2:1})", "  $0", "case default", "", "end select"] },
+  "Real64 precision": { "prefix": "isoenv", "body": "use, intrinsic :: iso_fortran_env, only: real64, int32" },
+  "Allocate with status": { "prefix": "allocstat", "body": ["allocate(${1:array}(${2:n}), stat=${3:ierr})", "if (${3:ierr} /= 0) error stop \"Allocation failed\"", "$0"] }
+}

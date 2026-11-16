@@ -1,0 +1,26 @@
+{
+  "theme": "Desktop",
+  "vim_mode": true,
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "buffer_font_size": 15,
+  "buffer_line_height": { "custom": 1.45 },
+  "ui_font_size": 14,
+  "terminal": {
+    "font_family": "JetBrainsMono Nerd Font",
+    "font_size": 14
+  },
+  "relative_line_numbers": "disabled",
+  "show_whitespaces": "selection",
+  "show_wrap_guides": false,
+  "scrollbar": { "show": "auto" },
+  "minimap": { "show": "never" },
+  "indent_guides": { "enabled": false },
+  "inlay_hints": { "enabled": false },
+  "tabs": { "file_icons": true, "git_status": true },
+  "project_panel": { "default_width": 240 },
+  "outline_panel": { "default_width": 240 },
+  "toolbar": { "breadcrumbs": true },
+  "title_bar": { "show_branch_status_icon": true },
+  "centered_layout": { "left_padding": 0.12, "right_padding": 0.12 },
+  "telemetry": { "diagnostics": false, "metrics": false }
+}
